@@ -1,0 +1,219 @@
+openapi: 3.1.0
+info:
+  title: Customer Success FTE API
+  version: 1.0.0
+  description: Multi-channel customer support API with webhooks for Gmail, Twilio WhatsApp, and Web Form
+
+servers:
+  - url: https://api.customer-success-fte.com
+    description: Production
+  - url: http://localhost:8000
+    description: Local development
+
+paths:
+  /webhooks/gmail/pubsub:
+    post:
+      summary: Gmail Pub/Sub webhook
+      description: Receives push notifications from Gmail via Google Cloud Pub/Sub
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GmailPubSubNotification'
+      responses:
+        '200':
+          description: Notification received
+        '400':
+          description: Invalid payload
+        '403':
+          description: Invalid JWT token
+
+  /webhooks/twilio/whatsapp:
+    post:
+      summary: Twilio WhatsApp webhook
+      description: Receives incoming WhatsApp messages from Twilio
+      security:
+        - TwilioSignature: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TwilioWebhook'
+      responses:
+        '200':
+          description: Message received
+        '403':
+          description: Invalid signature
+
+  /api/support/submit:
+    post:
+      summary: Web form submission
+      description: Submit support request via web form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportFormSubmission'
+      responses:
+        '200':
+          description: Ticket created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          description: Validation error
+
+  /api/ticket/{ticket_id}:
+    get:
+      summary: Get ticket status
+      parameters:
+        - name: ticket_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ticket details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDetails'
+        '404':
+          description: Ticket not found
+
+  /health:
+    get:
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Service is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+
+  /ready:
+    get:
+      summary: Readiness probe
+      responses:
+        '200':
+          description: Service is ready
+        '503':
+          description: Service not ready
+
+components:
+  securitySchemes:
+    TwilioSignature:
+      type: apiKey
+      in: header
+      name: X-Twilio-Signature
+
+  schemas:
+    GmailPubSubNotification:
+      type: object
+      properties:
+        message:
+          type: object
+          properties:
+            data:
+              type: string
+              format: base64
+            messageId:
+              type: string
+        subscription:
+          type: string
+
+    TwilioWebhook:
+      type: object
+      required: [From, To, Body, MessageSid]
+      properties:
+        From:
+          type: string
+          example: "whatsapp:+14155551234"
+        To:
+          type: string
+        Body:
+          type: string
+        MessageSid:
+          type: string
+        ProfileName:
+          type: string
+        WaId:
+          type: string
+
+    SupportFormSubmission:
+      type: object
+      required: [name, email, category, message]
+      properties:
+        name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        category:
+          type: string
+          enum: [general, technical, billing, feedback]
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+        message:
+          type: string
+          minLength: 10
+          maxLength: 5000
+
+    TicketResponse:
+      type: object
+      properties:
+        ticket_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        message:
+          type: string
+
+    TicketDetails:
+      type: object
+      properties:
+        ticket_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [open, in_progress, resolved, escalated]
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        created_at:
+          type: string
+          format: date-time
+        last_updated:
+          type: string
+          format: date-time
+
+    Message:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [customer, agent, system]
+        content:
+          type: string
+        channel:
+          type: string
+        created_at:
+          type: string
+          format: date-time
