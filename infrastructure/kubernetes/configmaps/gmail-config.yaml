@@ -1,0 +1,157 @@
+---
+# Gmail Pub/Sub Configuration for Customer Success Digital FTE
+# Task: T042 - Configure Gmail Pub/Sub notifications per quickstart.md
+#
+# This ConfigMap contains Gmail API and Pub/Sub configuration.
+# Follow the setup instructions below to enable Gmail notifications.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gmail-config
+  namespace: customer-success
+  labels:
+    app: customer-success-fte
+    component: gmail
+data:
+  # Gmail API Configuration
+  GMAIL_SUPPORT_EMAIL: "support@company.com"
+
+  # Pub/Sub Configuration
+  PUBSUB_PROJECT_ID: "your-gcp-project-id"
+  PUBSUB_TOPIC_NAME: "gmail-notifications"
+  PUBSUB_SUBSCRIPTION_NAME: "gmail-notifications-sub"
+
+  # Webhook endpoint (where Pub/Sub sends notifications)
+  WEBHOOK_URL: "https://your-domain.com/webhooks/gmail/pubsub"
+
+---
+# Setup Instructions (Comments)
+#
+# 1. Enable Gmail API in Google Cloud Console:
+#    - Go to https://console.cloud.google.com/apis/library/gmail.googleapis.com
+#    - Enable the Gmail API for your project
+#
+# 2. Create Service Account:
+#    - Go to IAM & Admin > Service Accounts
+#    - Create new service account with Gmail API access
+#    - Download JSON key file
+#    - Store in secret (see secrets/gmail-credentials.yaml)
+#
+# 3. Create Pub/Sub Topic:
+#    ```bash
+#    gcloud pubsub topics create gmail-notifications
+#    ```
+#
+# 4. Create Pub/Sub Subscription (push to webhook):
+#    ```bash
+#    gcloud pubsub subscriptions create gmail-notifications-sub \
+#      --topic=gmail-notifications \
+#      --push-endpoint=https://your-domain.com/webhooks/gmail/pubsub \
+#      --push-auth-service-account=your-service-account@project.iam.gserviceaccount.com
+#    ```
+#
+# 5. Configure Gmail Watch:
+#    Use Gmail API to set up push notifications:
+#
+#    ```python
+#    from googleapiclient.discovery import build
+#    from google.oauth2 import service_account
+#
+#    credentials = service_account.Credentials.from_service_account_file(
+#        'service-account.json',
+#        scopes=['https://www.googleapis.com/auth/gmail.readonly']
+#    )
+#
+#    service = build('gmail', 'v1', credentials=credentials)
+#
+#    request = {
+#        'labelIds': ['INBOX'],
+#        'topicName': 'projects/your-project-id/topics/gmail-notifications'
+#    }
+#
+#    service.users().watch(userId='me', body=request).execute()
+#    ```
+#
+#    Note: Watch expires after 7 days. Set up cron job to renew:
+#    - Schedule: Every 6 days
+#    - Command: Run watch() API call again
+#
+# 6. Grant Pub/Sub Publisher Role to Gmail:
+#    ```bash
+#    gcloud projects add-iam-policy-binding your-project-id \
+#      --member=serviceAccount:gmail-api-push@system.gserviceaccount.com \
+#      --role=roles/pubsub.publisher
+#    ```
+#
+# 7. Test the Setup:
+#    - Send a test email to support@company.com
+#    - Check Pub/Sub subscription for message
+#    - Verify webhook receives notification
+#    - Check application logs for processing
+
+---
+# Gmail Watch Renewal CronJob
+# Run every 6 days to renew Gmail watch (expires after 7 days)
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: gmail-watch-renewal
+  namespace: customer-success
+spec:
+  # Run at 2 AM every 6 days
+  schedule: "0 2 */6 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: gmail-service-account
+          containers:
+          - name: renew-watch
+            image: google/cloud-sdk:alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              pip install --upgrade google-api-python-client google-auth
+              python3 <<EOF
+              from googleapiclient.discovery import build
+              from google.oauth2 import service_account
+              import os
+
+              credentials = service_account.Credentials.from_service_account_file(
+                  '/secrets/gmail-service-account.json',
+                  scopes=['https://www.googleapis.com/auth/gmail.readonly']
+              )
+
+              service = build('gmail', 'v1', credentials=credentials)
+
+              request = {
+                  'labelIds': ['INBOX'],
+                  'topicName': f'projects/{os.getenv("PUBSUB_PROJECT_ID")}/topics/{os.getenv("PUBSUB_TOPIC_NAME")}'
+              }
+
+              result = service.users().watch(userId='me', body=request).execute()
+              print(f"Gmail watch renewed: {result}")
+              EOF
+            env:
+            - name: PUBSUB_PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: gmail-config
+                  key: PUBSUB_PROJECT_ID
+            - name: PUBSUB_TOPIC_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gmail-config
+                  key: PUBSUB_TOPIC_NAME
+            volumeMounts:
+            - name: gmail-credentials
+              mountPath: /secrets
+              readOnly: true
+          volumes:
+          - name: gmail-credentials
+            secret:
+              secretName: gmail-service-account
+          restartPolicy: OnFailure

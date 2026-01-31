@@ -1,0 +1,36 @@
+# FastAPI and ASGI server
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic>=2.10.0
+pydantic-settings==2.6.0
+
+# Database
+asyncpg==0.29.0
+pgvector==0.3.5
+
+# Kafka
+confluent-kafka==2.6.0
+
+# OpenAI Agents SDK
+openai==1.87.0
+openai-agents==0.1.0
+
+# Email/WhatsApp clients
+google-api-python-client==2.149.0
+google-auth==2.35.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+twilio==9.3.7
+
+# Utilities
+python-dotenv==1.0.1
+python-multipart==0.0.12
+httpx==0.27.2
+
+# Monitoring and logging
+prometheus-client==0.21.0
+python-json-logger==2.0.7
+
+# Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
