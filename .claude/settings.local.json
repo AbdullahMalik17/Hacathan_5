@@ -15,7 +15,11 @@
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
       "Bash(chmod:*)",
-      "Bash(docker-compose up:*)"
+      "Bash(docker-compose up:*)",
+      "Bash(if [ -d \"specs/001-customer-success-fte/checklists\" ])",
+      "Bash(then echo \"EXISTS\")",
+      "Bash(else echo \"NOT_FOUND\")",
+      "Bash(fi:*)"
     ]
   }
 }

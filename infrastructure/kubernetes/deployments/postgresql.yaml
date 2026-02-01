@@ -1,0 +1,119 @@
+# Task T094: PostgreSQL StatefulSet with pgvector
+# Customer Success Digital FTE - PostgreSQL Database
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresql
+  namespace: default
+  labels:
+    app: customer-success-fte
+    component: database
+spec:
+  serviceName: postgresql-service
+  replicas: 1  # Single primary for development (use replication in production)
+  selector:
+    matchLabels:
+      app: customer-success-fte
+      component: database
+  template:
+    metadata:
+      labels:
+        app: customer-success-fte
+        component: database
+    spec:
+      containers:
+      - name: postgresql
+        image: pgvector/pgvector:pg16
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP
+
+        env:
+        - name: POSTGRES_DB
+          value: "customer_success"
+
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: username
+
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: password
+
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+
+        # Health checks
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+
+        volumeMounts:
+        - name: postgresql-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgresql-init
+          mountPath: /docker-entrypoint-initdb.d
+
+      volumes:
+      - name: postgresql-init
+        configMap:
+          name: postgresql-init-scripts
+
+  volumeClaimTemplates:
+  - metadata:
+      name: postgresql-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: standard  # Use appropriate storage class
+      resources:
+        requests:
+          storage: 20Gi
+
+---
+# ConfigMap for PostgreSQL initialization
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-init-scripts
+  namespace: default
+data:
+  01-enable-pgvector.sql: |
+    -- Enable pgvector extension
+    CREATE EXTENSION IF NOT EXISTS vector;
+
+  02-schema.sql: |
+    -- This will be populated from database/schema.sql
+    -- Run: kubectl create configmap postgresql-init-scripts --from-file=database/schema.sql
+    -- For now, schema is applied manually or via migration job

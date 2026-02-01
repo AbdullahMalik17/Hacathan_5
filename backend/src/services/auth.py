@@ -205,3 +205,21 @@ class WebhookAuthService:
 
 # Global auth service instance
 auth_service = WebhookAuthService()
+
+
+# Convenience functions for webhook handlers
+async def validate_twilio_signature(
+    request_url: str, form_data: dict, signature: str
+) -> bool:
+    """
+    Async wrapper for Twilio signature validation.
+
+    Args:
+        request_url: Full URL of the webhook
+        form_data: Form parameters
+        signature: X-Twilio-Signature header
+
+    Returns:
+        True if valid, raises HTTPException otherwise
+    """
+    return auth_service.verify_twilio_signature(request_url, form_data, signature)

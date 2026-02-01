@@ -19,9 +19,13 @@ from ..models import (
     TicketStatus,
 )
 from ..services.channels.gmail_client import gmail_client
+from ..services.channels.twilio_client import TwilioClient
 from ..services.database import db_service
 from ..services.kafka_producer import kafka_producer
-from .formatters import EmailResponseFormatter
+from .formatters import EmailResponseFormatter, WhatsAppResponseFormatter
+
+# Initialize Twilio client
+twilio_client = TwilioClient()
 
 logger = logging.getLogger(__name__)
 
@@ -340,6 +344,70 @@ async def send_email_response(
             "status": "failed",
             "error": str(e),
             "recipient": customer_email
+        }
+
+
+# ============================================================================
+# T050: Send WhatsApp Response Tool (FR-020, FR-023, FR-024)
+# ============================================================================
+
+@function_tool
+async def send_whatsapp_response(
+    customer_phone: str,
+    content: str,
+    ticket_id: Optional[str] = None,
+    add_escalation_offer: bool = True
+) -> Dict[str, Any]:
+    """Send formatted WhatsApp response to customer.
+
+    Args:
+        customer_phone: Customer's phone number (E.164 format)
+        content: Response content from agent
+        ticket_id: Ticket reference ID
+        add_escalation_offer: Whether to add human escalation offer (FR-023)
+
+    Returns:
+        Dictionary with send status and message SIDs
+    """
+    try:
+        # Add escalation offer if requested (FR-023)
+        if add_escalation_offer:
+            content = WhatsAppResponseFormatter.add_escalation_offer(content)
+
+        # Format response and split if needed (FR-033, FR-034)
+        messages = WhatsAppResponseFormatter.format_response(
+            content=content,
+            max_length=300  # Concise WhatsApp messages
+        )
+
+        # Send message(s) via Twilio
+        sent_messages = []
+        for msg_content in messages:
+            result = await twilio_client.send_whatsapp_message(
+                to=customer_phone,
+                body=msg_content
+            )
+            sent_messages.append(result)
+
+        logger.info(
+            f"WhatsApp response sent: to={customer_phone}, "
+            f"parts={len(sent_messages)}, ticket_id={ticket_id}"
+        )
+
+        return {
+            "status": "sent",
+            "message_count": len(sent_messages),
+            "message_sids": [msg["message_sid"] for msg in sent_messages],
+            "recipient": customer_phone,
+            "total_length": len(content)
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to send WhatsApp message: {e}")
+        return {
+            "status": "failed",
+            "error": str(e),
+            "recipient": customer_phone
         }
 
 

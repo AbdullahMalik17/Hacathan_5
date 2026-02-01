@@ -213,16 +213,119 @@ async def gmail_pubsub_webhook(request: Request):
         return {"status": "error", "message": str(e)}
 
 
-# TODO: Add remaining webhook routes in Phase 4+
-# - POST /webhooks/twilio/whatsapp (User Story 2)
-# - POST /api/support/submit (User Story 3)
+@app.post("/webhooks/twilio/whatsapp", status_code=status.HTTP_200_OK)
+async def twilio_whatsapp_webhook(request: Request):
+    """
+    Twilio WhatsApp webhook endpoint (Task: T047 - User Story 2).
+
+    Receives incoming WhatsApp messages via Twilio webhook.
+    Validates X-Twilio-Signature and processes the message.
+
+    Returns 200 OK with empty TwiML response.
+    """
+    from .webhooks.twilio import handle_whatsapp_message
+
+    try:
+        # Get signature header
+        signature = request.headers.get("X-Twilio-Signature")
+
+        # Parse form data
+        form_data = await request.form()
+        form_dict = dict(form_data)
+
+        # Handle WhatsApp message
+        result = await handle_whatsapp_message(
+            request=request,
+            form_data=form_dict,
+            x_twilio_signature=signature,
+            kafka_producer=kafka_producer,
+            db_service=db_service,
+        )
+
+        logger.info(f"Twilio WhatsApp webhook processed: {result}")
+
+        # Return empty response (Twilio expects 200 OK)
+        return result
+
+    except Exception as e:
+        logger.error(f"Failed to process Twilio webhook: {e}")
+        # Return 200 to avoid retries for invalid messages
+        return {"status": "error", "message": str(e)}
+
 
 # ============================================================================
-# API Routes (will be added in Phase 3+)
+# API Routes (Phase 5: User Story 3 - Web Form)
 # ============================================================================
 
-# TODO: Add API routes in Phase 3
-# - GET /api/ticket/{ticket_id} (User Story 3)
+@app.post("/api/support/submit", status_code=status.HTTP_200_OK)
+async def submit_support_request(request: Request):
+    """
+    Web form submission endpoint (Task: T062 - User Story 3).
+
+    Validates form data, creates ticket immediately, sends confirmation email,
+    and publishes to Kafka for agent processing.
+
+    Returns immediate ticket ID for customer tracking (FR-036).
+    """
+    from .webhooks.webform import WebFormSubmission, handle_webform_submission
+
+    try:
+        # Parse JSON body
+        body = await request.json()
+
+        # Validate form data
+        form_data = WebFormSubmission(**body)
+
+        # Handle submission
+        result = await handle_webform_submission(
+            form_data=form_data,
+            kafka_producer=kafka_producer,
+            db_service=db_service,
+        )
+
+        logger.info(f"Web form submission processed: {result['ticket_id']}")
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Failed to process web form submission: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"detail": str(e), "status": "error"}
+        )
+
+
+@app.get("/api/ticket/{ticket_id}", status_code=status.HTTP_200_OK)
+async def get_ticket_status(ticket_id: str):
+    """
+    Ticket status endpoint (Task: T064 - User Story 3).
+
+    Returns ticket details and conversation history for tracking (FR-036).
+    """
+    from .webhooks.webform import get_ticket_details
+
+    try:
+        ticket_details = await get_ticket_details(
+            ticket_id=ticket_id,
+            db_service=db_service,
+        )
+
+        logger.info(f"Ticket status retrieved: {ticket_id}")
+
+        return ticket_details
+
+    except ValueError as e:
+        logger.error(f"Ticket not found: {ticket_id}")
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": str(e), "status": "not_found"}
+        )
+    except Exception as e:
+        logger.error(f"Failed to retrieve ticket status: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"detail": str(e), "status": "error"}
+        )
 
 
 if __name__ == "__main__":

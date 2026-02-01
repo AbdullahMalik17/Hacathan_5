@@ -309,3 +309,106 @@ class WebFormResponseFormatter:
             logger.warning(f"Web form response truncated to {max_chars} characters")
 
         return content
+
+
+# ============================================================================
+# Task T089: Escalation acknowledgment response templates per channel
+# ============================================================================
+
+class EscalationFormatter:
+    """
+    Format escalation acknowledgment messages per channel.
+
+    Requirements: FR-025-FR-030
+    """
+
+    @staticmethod
+    def format_email_escalation(reason: str, ticket_id: Optional[UUID] = None) -> str:
+        """
+        Format escalation acknowledgment for email channel.
+
+        Args:
+            reason: Escalation reason
+            ticket_id: Ticket reference ID
+
+        Returns:
+            Formatted email escalation message
+        """
+        reason_messages = {
+            "pricing_inquiry": "pricing-related questions require review by our sales team",
+            "refund_request": "refund requests are handled by our billing department",
+            "legal_matter": "legal matters require immediate attention from our legal team",
+            "negative_sentiment": "we take your concerns very seriously",
+            "explicit_human_request": "you've requested to speak with a team member",
+            "no_documentation_found": "your inquiry requires specialized expertise",
+            "profanity_aggressive_language": "we want to ensure you receive the best possible support",
+        }
+
+        message_detail = reason_messages.get(reason, "your request requires specialized attention")
+
+        ticket_ref = f"\n\n**Ticket Reference:** {ticket_id}" if ticket_id else ""
+
+        return f"""Your request has been escalated to our support team.
+
+{message_detail.capitalize()}, so I've forwarded your request to a specialist who will contact you within 2 hours.
+
+You will receive an email from our team shortly with next steps.{ticket_ref}
+
+Thank you for your patience."""
+
+    @staticmethod
+    def format_whatsapp_escalation(reason: str) -> str:
+        """
+        Format escalation acknowledgment for WhatsApp channel.
+
+        Args:
+            reason: Escalation reason
+
+        Returns:
+            Formatted WhatsApp escalation message (concise)
+        """
+        reason_messages = {
+            "pricing_inquiry": "I've escalated your pricing question to our sales team.",
+            "refund_request": "I've escalated your refund request to our billing team.",
+            "legal_matter": "I've escalated this to our legal team immediately.",
+            "negative_sentiment": "I've escalated your concern to a senior agent.",
+            "explicit_human_request": "I've connected you with our support team.",
+            "no_documentation_found": "I've escalated this to a specialist.",
+            "profanity_aggressive_language": "I've escalated your request to our team.",
+        }
+
+        message = reason_messages.get(reason, "I've escalated your request to our team.")
+
+        return f"{message} Someone will reach out within 2 hours. Thanks for your patience!"
+
+    @staticmethod
+    def format_webform_escalation(reason: str, ticket_id: Optional[UUID] = None) -> str:
+        """
+        Format escalation acknowledgment for web form channel.
+
+        Args:
+            reason: Escalation reason
+            ticket_id: Ticket reference ID
+
+        Returns:
+            Formatted web form escalation message
+        """
+        reason_messages = {
+            "pricing_inquiry": "Pricing questions are handled by our sales team",
+            "refund_request": "Refund requests are processed by our billing department",
+            "legal_matter": "Legal matters receive immediate attention from our legal team",
+            "negative_sentiment": "Your concerns are being reviewed by a senior agent",
+            "explicit_human_request": "You've been connected with our support team",
+            "no_documentation_found": "Your inquiry requires specialized expertise",
+            "profanity_aggressive_language": "Your request is being handled by our support team",
+        }
+
+        message_detail = reason_messages.get(reason, "Your request requires specialized attention")
+
+        ticket_ref = f"\n\n**Ticket Reference:** {ticket_id}" if ticket_id else ""
+
+        return f"""**Request Escalated**
+
+{message_detail}. A specialist will contact you within 2 hours via email.
+
+You will receive updates at the email address you provided.{ticket_ref}"""

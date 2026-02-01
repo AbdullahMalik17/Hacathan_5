@@ -1,0 +1,125 @@
+# Task T093: Agent workers deployment with KEDA autoscaling
+# Customer Success Digital FTE - Kafka Consumer Workers
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-success-agent-workers
+  namespace: default
+  labels:
+    app: customer-success-fte
+    component: agent-workers
+spec:
+  replicas: 2  # Initial replicas, KEDA will scale based on Kafka lag
+  selector:
+    matchLabels:
+      app: customer-success-fte
+      component: agent-workers
+  template:
+    metadata:
+      labels:
+        app: customer-success-fte
+        component: agent-workers
+    spec:
+      containers:
+      - name: message-processor
+        image: customer-success-fte/worker:latest
+        imagePullPolicy: Always
+
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: database-url
+
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka-service:9092"
+
+        - name: KAFKA_CONSUMER_GROUP
+          value: "customer-success-agent-workers"
+
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: openai-api-key
+
+        - name: TWILIO_ACCOUNT_SID
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: twilio-account-sid
+
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: twilio-auth-token
+
+        - name: GMAIL_SERVICE_ACCOUNT_PATH
+          value: "/credentials/gmail-service-account.json"
+
+        - name: LOG_LEVEL
+          value: "INFO"
+
+        - name: MESSAGE_RETRY_MAX_ATTEMPTS
+          value: "3"
+
+        - name: MESSAGE_RETRY_BACKOFF_FACTOR
+          value: "2"
+
+        # Health check (worker liveness)
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+
+        volumeMounts:
+        - name: gmail-credentials
+          mountPath: /credentials
+          readOnly: true
+
+      volumes:
+      - name: gmail-credentials
+        secret:
+          secretName: gmail-credentials
+
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Graceful shutdown (important for Kafka consumers)
+      terminationGracePeriodSeconds: 60
+
+---
+# KEDA ScaledObject for Kafka lag-based autoscaling
+# This will be in a separate file (keda-scaledobject.yaml) per task T101
+# But included here for reference
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-worker-config
+  namespace: default
+data:
+  KAFKA_TOPICS: "fte.tickets.incoming,fte.channels.whatsapp.inbound,fte.channels.webform.inbound"
+  MAX_WORKERS: "12"  # Matches Kafka partition count
+  MIN_WORKERS: "2"
+  TARGET_LAG: "10"  # Messages per worker

@@ -136,6 +136,39 @@ You have access to these tools:
 7. **Maintain context** - reference previous messages in thread
 8. **Be concise** - customers value quick, clear answers
 
+## Cross-Channel Continuity (FR-008, Task T078)
+
+When a customer contacts you on a different channel than their previous interaction:
+
+1. **Acknowledge the channel switch**: "I see you previously contacted us via [channel]. I have your conversation history."
+
+2. **Reference previous interactions**: Mention specific details from past conversations to show continuity.
+   - "I see you emailed us yesterday about [topic]"
+   - "Following up on your WhatsApp message from this morning..."
+   - "I notice you submitted a web form about [issue] earlier"
+
+3. **Use customer history tool**: Always call `get_customer_history` to retrieve past interactions before responding.
+
+4. **Maintain conversation context**:
+   - If customer references a previous ticket, look it up
+   - If customer switches channels mid-conversation, continue seamlessly
+   - Track sentiment across all channels
+
+5. **Channel-appropriate responses**:
+   - Email: Can reference detailed history
+   - WhatsApp: Brief acknowledgment: "I see our email exchange from yesterday. To clarify..."
+   - Web form: Mention if customer has contacted before: "Welcome back! I see you've contacted us previously."
+
+**Examples:**
+
+*Customer emails about password reset, then messages on WhatsApp:*
+"Hi! I see you emailed us 30 minutes ago about resetting your password. I sent you reset instructions via email. Did you receive them?"
+
+*Customer submits web form after WhatsApp conversation:*
+"Thanks for submitting this form. I have your WhatsApp conversation history from earlier today. Let me continue helping you with [issue]."
+
+**Important**: Cross-channel recognition builds trust and reduces customer frustration from repeating themselves.
+
 ## Error Handling
 
 If you encounter errors:
@@ -250,8 +283,97 @@ ESCALATION_KEYWORDS = {
     "legal": ["lawyer", "legal", "sue", "attorney", "litigation", "lawsuit", "legal action", "court"],
     "human_request": ["talk to human", "speak to person", "human agent", "real person", "representative",
                       "talk to someone", "human", "agent", "operator", "support team"],
-    "profanity": ["damn", "hell", "crap"],  # Extend as needed
+    "profanity": ["damn", "hell", "crap", "shit", "fuck", "ass", "bitch", "bastard"],  # Extend as needed
+    "aggressive": ["stupid", "idiotic", "useless", "worthless", "pathetic", "incompetent", "garbage", "trash"],
 }
+
+
+# ============================================================================
+# Task T054: Profanity and aggressive language detection (FR-028)
+# Task T055: Explicit escalation keyword detection (FR-029)
+# ============================================================================
+
+def detect_profanity(text: str) -> bool:
+    """
+    Detect profanity or aggressive language in customer message.
+
+    Args:
+        text: Customer message text
+
+    Returns:
+        True if profanity detected, False otherwise
+    """
+    text_lower = text.lower()
+
+    # Check for profanity
+    for word in ESCALATION_KEYWORDS["profanity"]:
+        if word in text_lower:
+            return True
+
+    # Check for aggressive language
+    for word in ESCALATION_KEYWORDS["aggressive"]:
+        if word in text_lower:
+            return True
+
+    return False
+
+
+def detect_explicit_human_request(text: str) -> bool:
+    """
+    Detect explicit request to speak with human agent.
+
+    Args:
+        text: Customer message text
+
+    Returns:
+        True if explicit human request detected
+    """
+    text_lower = text.lower()
+
+    for phrase in ESCALATION_KEYWORDS["human_request"]:
+        if phrase in text_lower:
+            return True
+
+    return False
+
+
+def detect_escalation_trigger(text: str) -> tuple[bool, str | None]:
+    """
+    Detect any escalation trigger keywords in customer message.
+
+    Args:
+        text: Customer message text
+
+    Returns:
+        Tuple of (should_escalate, reason)
+        reason can be: pricing, refund, legal, profanity, human_request, or None
+    """
+    text_lower = text.lower()
+
+    # Check pricing keywords
+    for keyword in ESCALATION_KEYWORDS["pricing"]:
+        if keyword in text_lower:
+            return True, "pricing_inquiry"
+
+    # Check refund keywords
+    for keyword in ESCALATION_KEYWORDS["refund"]:
+        if keyword in text_lower:
+            return True, "refund_request"
+
+    # Check legal keywords
+    for keyword in ESCALATION_KEYWORDS["legal"]:
+        if keyword in text_lower:
+            return True, "legal_matter"
+
+    # Check profanity/aggressive
+    if detect_profanity(text):
+        return True, "profanity_aggressive_language"
+
+    # Check explicit human request
+    if detect_explicit_human_request(text):
+        return True, "explicit_human_request"
+
+    return False, None
 
 
 def get_channel_specific_prompt(channel: str) -> str:

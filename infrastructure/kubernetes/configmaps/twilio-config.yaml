@@ -1,0 +1,66 @@
+# Task T056: Configure Twilio webhook URL
+# Twilio WhatsApp webhook configuration for Kubernetes deployment
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: twilio-config
+  namespace: default
+  labels:
+    app: customer-success-fte
+    component: twilio
+data:
+  # Twilio webhook URL - Update with your actual domain
+  WEBHOOK_URL: "https://your-domain.com/webhooks/twilio/whatsapp"
+
+  # Twilio WhatsApp number (configured in Twilio Console)
+  TWILIO_WHATSAPP_NUMBER: "whatsapp:+14155238886"
+
+  # Response timeout (seconds)
+  RESPONSE_TIMEOUT: "10"
+
+  # Delivery status callback URL (optional)
+  STATUS_CALLBACK_URL: "https://your-domain.com/webhooks/twilio/status"
+
+---
+# Instructions for Twilio Console Configuration
+#
+# 1. Log in to Twilio Console: https://console.twilio.com
+#
+# 2. Navigate to: Messaging > Settings > WhatsApp Sandbox Settings
+#    (For production: Messaging > Senders > WhatsApp Senders)
+#
+# 3. Configure Webhook URL:
+#    When a message comes in: https://your-domain.com/webhooks/twilio/whatsapp
+#    HTTP Method: POST
+#
+# 4. Optional: Configure Status Callback URL for delivery tracking
+#    Status Callback URL: https://your-domain.com/webhooks/twilio/status
+#
+# 5. Save configuration
+#
+# 6. Test webhook:
+#    - Send message to your WhatsApp sandbox number
+#    - Verify webhook receives POST request
+#    - Check logs: kubectl logs -l app=customer-success-api
+#
+# 7. For production deployment:
+#    - Request WhatsApp Business API access from Twilio
+#    - Configure approved WhatsApp number
+#    - Update TWILIO_WHATSAPP_NUMBER in this ConfigMap
+#    - Redeploy application
+#
+# Security Notes:
+# - Webhook signature validation is REQUIRED (X-Twilio-Signature)
+# - Use HTTPS only (TLS 1.3 preferred)
+# - Store Twilio Auth Token in Kubernetes Secret (not ConfigMap)
+# - Rotate Auth Token periodically
+#
+# Rate Limiting:
+# - Twilio limits: 80 msg/sec for WhatsApp (US numbers)
+# - Implement rate limiting in application if needed
+#
+# Monitoring:
+# - Track webhook delivery status
+# - Alert on signature validation failures
+# - Monitor message send failures

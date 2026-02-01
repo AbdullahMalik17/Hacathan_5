@@ -1,0 +1,107 @@
+# Task T101: KEDA ScaledObject for Kafka lag-based autoscaling
+# Customer Success Digital FTE - KEDA Autoscaling Configuration
+
+# Prerequisites:
+# 1. Install KEDA: kubectl apply -f https://github.com/kedacore/keda/releases/download/v2.12.0/keda-2.12.0.yaml
+# 2. Verify KEDA installation: kubectl get pods -n keda
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: customer-success-agent-workers-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: customer-success-agent-workers
+    kind: Deployment
+
+  # Scaling configuration
+  minReplicaCount: 2
+  maxReplicaCount: 12  # Matches Kafka partition count
+  pollingInterval: 15  # Check Kafka lag every 15 seconds
+  cooldownPeriod: 300  # 5 minutes cooldown after scale down
+
+  # Advanced scaling behavior
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300
+          policies:
+          - type: Percent
+            value: 50
+            periodSeconds: 60
+          - type: Pods
+            value: 1
+            periodSeconds: 60
+          selectPolicy: Min
+        scaleUp:
+          stabilizationWindowSeconds: 0
+          policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 30
+          - type: Pods
+            value: 2
+            periodSeconds: 30
+          selectPolicy: Max
+
+  # Kafka triggers
+  triggers:
+  # Trigger 1: Main tickets queue
+  - type: kafka
+    metadata:
+      bootstrapServers: kafka-service:9092
+      consumerGroup: customer-success-agent-workers
+      topic: fte.tickets.incoming
+      lagThreshold: "10"  # Scale up if lag > 10 messages per worker
+      offsetResetPolicy: earliest
+
+  # Trigger 2: WhatsApp channel queue
+  - type: kafka
+    metadata:
+      bootstrapServers: kafka-service:9092
+      consumerGroup: customer-success-agent-workers
+      topic: fte.channels.whatsapp.inbound
+      lagThreshold: "10"
+      offsetResetPolicy: earliest
+
+  # Trigger 3: Web form channel queue
+  - type: kafka
+    metadata:
+      bootstrapServers: kafka-service:9092
+      consumerGroup: customer-success-agent-workers
+      topic: fte.channels.webform.inbound
+      lagThreshold: "10"
+      offsetResetPolicy: earliest
+
+---
+# TriggerAuthentication for Kafka (if SASL/TLS is enabled)
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: kafka-trigger-auth
+  namespace: default
+spec:
+  secretTargetRef:
+  - parameter: sasl
+    name: kafka-credentials  # Create this secret if using SASL
+    key: sasl
+  - parameter: username
+    name: kafka-credentials
+    key: username
+  - parameter: password
+    name: kafka-credentials
+    key: password
+
+---
+# Example: Monitor KEDA scaling
+# kubectl get scaledobject -n default
+# kubectl get hpa -n default
+# kubectl describe scaledobject customer-success-agent-workers-scaler
+#
+# View scaling events:
+# kubectl get events --sort-by='.lastTimestamp' | grep -i scale
+#
+# Check current lag:
+# kubectl logs -l app=keda-operator -n keda | grep lag

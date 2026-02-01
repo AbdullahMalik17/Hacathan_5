@@ -1,0 +1,24 @@
+# Task T097: PostgreSQL service
+# Customer Success Digital FTE - PostgreSQL Database Service
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-service
+  namespace: default
+  labels:
+    app: customer-success-fte
+    component: database
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgresql
+  selector:
+    app: customer-success-fte
+    component: database
+
+  # Session affinity for connection pooling
+  sessionAffinity: ClientIP

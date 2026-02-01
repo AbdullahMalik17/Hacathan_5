@@ -1,0 +1,47 @@
+# Task T098: ConfigMap for non-sensitive config
+# Customer Success Digital FTE - Application Configuration
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: default
+  labels:
+    app: customer-success-fte
+data:
+  # Application settings
+  LOG_LEVEL: "INFO"
+  AGENT_RESPONSE_TIMEOUT: "180"
+
+  # Database settings (non-sensitive)
+  DB_POOL_MIN_SIZE: "10"
+  DB_POOL_MAX_SIZE: "20"
+  DB_QUERY_TIMEOUT: "30"
+
+  # Kafka settings
+  KAFKA_CONSUMER_GROUP: "customer-success-agent-workers"
+  KAFKA_AUTO_OFFSET_RESET: "earliest"
+  KAFKA_TOPICS: "fte.tickets.incoming,fte.channels.whatsapp.inbound,fte.channels.webform.inbound,fte.escalations,fte.dlq"
+
+  # Retry settings
+  MESSAGE_RETRY_MAX_ATTEMPTS: "3"
+  MESSAGE_RETRY_BACKOFF_FACTOR: "2"
+
+  # OpenAI settings
+  OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
+  OPENAI_COMPLETION_MODEL: "gpt-4"
+
+  # Service URLs (internal)
+  DATABASE_HOST: "postgresql-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "customer_success"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-service:9092"
+
+  # Feature flags
+  ENABLE_CROSS_CHANNEL_MATCHING: "true"
+  ENABLE_AUTO_ESCALATION: "true"
+  ENABLE_SENTIMENT_ANALYSIS: "true"
+
+  # Performance settings
+  MAX_CONCURRENT_WORKERS: "12"
+  KNOWLEDGE_BASE_SIMILARITY_THRESHOLD: "0.6"
