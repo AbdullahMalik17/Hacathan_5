@@ -233,6 +233,10 @@ def validate_phone(phone: str) -> bool:
     return bool(re.match(pattern, cleaned))
 
 
+# Alias for backward compatibility
+sanitize_input = sanitize_customer_input
+
+
 def strip_pii_for_logging(text: str) -> str:
     """
     Remove or mask PII from text for safe logging (NFR-013, NFR-014).

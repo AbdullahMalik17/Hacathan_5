@@ -283,7 +283,13 @@ TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 
 ## 📚 Documentation
 
-- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Full deployment instructions
+### Deployment Guides
+- [API_KEYS_GUIDE.md](API_KEYS_GUIDE.md) - **START HERE:** How to obtain all required API keys
+- [DEPLOY_LOCAL.md](DEPLOY_LOCAL.md) - Local Kubernetes deployment with Minikube
+- [DEPLOY_CLOUD.md](DEPLOY_CLOUD.md) - Production deployment to GKE/EKS/AKS/DigitalOcean
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Original deployment instructions
+
+### Testing & Development
 - [TESTING.md](TESTING.md) - Comprehensive testing guide
 - [CLAUDE.md](CLAUDE.md) - Project development guidelines
 - [specs/001-customer-success-fte/](specs/001-customer-success-fte/) - Feature specifications
@@ -292,19 +298,31 @@ TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 
 ## 🎯 Next Steps
 
-### Option 1: Complete MVP (Recommended)
-Proceed with **Phase 4: WhatsApp Support** to complete the dual-channel P1 MVP.
+### Option 1: Local Deployment (Recommended for Testing) ⭐
+1. **Get API keys**: Follow [API_KEYS_GUIDE.md](API_KEYS_GUIDE.md) (OpenAI required)
+2. **Deploy locally**: Follow [DEPLOY_LOCAL.md](DEPLOY_LOCAL.md)
+3. **Cost**: $0-5/month (OpenAI usage only)
 
 ### Option 2: Production Deployment
-1. Set up Gmail Pub/Sub (see `infrastructure/kubernetes/configmaps/gmail-config.yaml`)
-2. Configure Kubernetes secrets
-3. Deploy to production cluster
-4. Set up monitoring and alerts
+1. **Get all API keys**: [API_KEYS_GUIDE.md](API_KEYS_GUIDE.md)
+2. **Choose platform**: DigitalOcean (recommended), GKE, EKS, or AKS
+3. **Deploy**: Follow [DEPLOY_CLOUD.md](DEPLOY_CLOUD.md)
+4. **Configure webhooks**: Twilio WhatsApp + Gmail Pub/Sub
+5. **Set up monitoring**: Prometheus + Grafana
+6. **Cost**: ~$70-120/month (cloud + API usage)
 
-### Option 3: Expand Features
-- Phase 5: Web Form Support
-- Phase 6: Cross-Channel Continuity
-- Phase 7: Advanced Escalation Logic
+### Option 3: Quick Docker Compose (Fastest)
+```bash
+# Get OpenAI API key first
+echo 'OPENAI_API_KEY=sk-proj-your-key' >> backend/.env
+
+# Run deployment script
+./deploy.sh
+
+# Start services
+python -m backend.src.main
+python backend/src/workers/message_processor.py
+```
 
 ---
 

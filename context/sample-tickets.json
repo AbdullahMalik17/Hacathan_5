@@ -1,0 +1,89 @@
+[
+  {
+    "id": "TICKET-001",
+    "customer_id": "cust_001",
+    "channel": "email",
+    "subject": "Invoice missing for January",
+    "content": "Hi support, I can't find the invoice for our January subscription in the billing portal. Can you send it to me? Thanks, John.",
+    "sentiment": "neutral",
+    "expected_action": "Check billing system, resend invoice"
+  },
+  {
+    "id": "TICKET-002",
+    "customer_id": "cust_002",
+    "channel": "whatsapp",
+    "content": "hey, how do i change my password? cant find it in settings",
+    "sentiment": "neutral",
+    "expected_action": "Provide password reset instructions"
+  },
+  {
+    "id": "TICKET-003",
+    "customer_id": "cust_003",
+    "channel": "web_form",
+    "subject": "API Rate Limits",
+    "content": "We are hitting 429 errors on the task creation endpoint. What are the limits for the Pro plan?",
+    "sentiment": "frustrated",
+    "expected_action": "Explain API limits, suggest Enterprise plan if needed"
+  },
+  {
+    "id": "TICKET-004",
+    "customer_id": "cust_004",
+    "channel": "email",
+    "subject": "Feature Request: Dark Mode",
+    "content": "Hello TeamFlow, our team loves the tool but we really need a Dark Mode for late-night work. Is this on the roadmap?",
+    "sentiment": "positive",
+    "expected_action": "Log feature request, thank customer"
+  },
+  {
+    "id": "TICKET-005",
+    "customer_id": "cust_005",
+    "channel": "whatsapp",
+    "content": "URGENT! The site is down and we have a deadline. Fix it NOW!",
+    "sentiment": "negative",
+    "expected_action": "Escalate to engineering/status check, reassure customer"
+  },
+  {
+    "id": "TICKET-006",
+    "customer_id": "cust_006",
+    "channel": "web_form",
+    "subject": "Refund Request",
+    "content": "I forgot to cancel my trial and was charged. I haven't used the tool. Please refund.",
+    "sentiment": "neutral",
+    "expected_action": "Escalate to billing/human agent (Policy: refunds escalated)"
+  },
+  {
+    "id": "TICKET-007",
+    "customer_id": "cust_007",
+    "channel": "email",
+    "subject": "SAML SSO Setup",
+    "content": "We are upgrading to Enterprise. Where is the documentation for setting up SAML with Okta?",
+    "sentiment": "neutral",
+    "expected_action": "Provide SAML documentation link"
+  },
+  {
+    "id": "TICKET-008",
+    "customer_id": "cust_008",
+    "channel": "whatsapp",
+    "content": "can i add a guest user to just one board?",
+    "sentiment": "neutral",
+    "expected_action": "Explain guest user permissions"
+  },
+  {
+    "id": "TICKET-009",
+    "customer_id": "cust_009",
+    "channel": "web_form",
+    "subject": "Integration with Jira?",
+    "content": "Do you have a native integration with Jira Software?",
+    "sentiment": "neutral",
+    "expected_action": "Clarify integration capabilities (or lack thereof)"
+  },
+  {
+    "id": "TICKET-010",
+    "customer_id": "cust_010",
+    "channel": "email",
+    "subject": "Legal question about data residency",
+    "content": "Our legal team needs to know if our data is stored in the EU. If not, we cannot use TeamFlow.",
+    "sentiment": "serious",
+    "expected_action": "Escalate to legal/compliance team"
+  }
+]

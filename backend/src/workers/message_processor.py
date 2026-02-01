@@ -13,11 +13,11 @@ from typing import Any, Dict
 
 from confluent_kafka import Consumer, KafkaError, KafkaException
 
-from backend.src.agent.customer_success_agent import get_agent
-from backend.src.config import get_settings
-from backend.src.models import InboundMessage
-from backend.src.services.database import db_service
-from backend.src.services.kafka_producer import kafka_producer
+from src.agent.customer_success_agent import get_agent
+from src.config import get_settings
+from src.models import InboundMessage
+from src.services.database import db_service
+from src.services.kafka_producer import kafka_producer
 
 logger = logging.getLogger(__name__)
 settings = get_settings()

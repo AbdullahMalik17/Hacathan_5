@@ -1,0 +1,81 @@
+# Docker ignore file for Customer Success Digital FTE
+# Excludes files not needed in Docker images
+
+# Git
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+.env*
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# Node.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Logs
+*.log
+logs/
+
+# Test files
+tests/
+**/test_*.py
+**/*_test.py
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Infrastructure
+infrastructure/
+
+# Specs and documentation
+specs/
+.specify/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (should never be in image)
+*.key
+*.crt
+*.pem
+secrets/
+credentials/

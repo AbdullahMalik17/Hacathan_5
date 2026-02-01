@@ -6,6 +6,7 @@ validates X-Twilio-Signature, and publishes to Kafka.
 """
 
 import logging
+from datetime import datetime
 from typing import Dict, Any
 from fastapi import Request, HTTPException, Header
 from pydantic import BaseModel, Field
@@ -128,16 +129,18 @@ async def handle_whatsapp_message(
         logger.info(f"Duplicate WhatsApp message ignored: {webhook.MessageSid}")
         return {"status": "duplicate", "message_sid": webhook.MessageSid}
 
-    # Publish to Kafka for agent processing
+    # Publish to Kafka for agent processing (Unified Ticket Ingestion)
     message = {
         "channel": "whatsapp",
         "channel_message_id": webhook.MessageSid,
+        "customer_identifier": sender_phone,  # Use unified field name
         "sender": {
             "phone": sender_phone,
             "name": sender_name,
             "wa_id": webhook.WaId or sender_phone.replace("+", ""),
         },
         "content": message_body,
+        "timestamp": datetime.utcnow().isoformat(),
         "metadata": {
             "num_media": int(webhook.NumMedia),
             "to": webhook.To,
@@ -145,7 +148,7 @@ async def handle_whatsapp_message(
     }
 
     await kafka_producer.publish(
-        topic="fte.channels.whatsapp.inbound",
+        topic="fte.tickets.incoming",
         message=message,
         key=sender_phone,  # Partition by customer for ordering
     )

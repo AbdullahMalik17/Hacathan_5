@@ -5,7 +5,9 @@ Receives support requests from web form, validates input,
 creates ticket, sends confirmation email, and publishes to Kafka.
 """
 
+import json
 import logging
+from datetime import datetime
 from typing import Dict, Any
 from uuid import uuid4
 from pydantic import BaseModel, Field, EmailStr, field_validator
@@ -177,7 +179,7 @@ async def handle_webform_submission(
         message_id,
         conversation_id,
         form_data.message,
-        {"subject": form_data.subject, "name": form_data.name},
+        json.dumps({"subject": form_data.subject, "name": form_data.name}),
     )
 
     # ========================================================================
@@ -230,10 +232,11 @@ This is an automated confirmation from our AI support system.
     # Task T067: Publish to Kafka (FR-037)
     # ========================================================================
 
-    # Publish to Kafka for agent processing
+    # Publish to Kafka for agent processing (Unified Ticket Ingestion)
     message_payload = {
         "channel": "webform",
         "channel_message_id": str(message_id),
+        "customer_identifier": form_data.email,  # Use unified field name
         "customer_id": str(customer_id),
         "conversation_id": str(conversation_id),
         "ticket_id": str(ticket_id),
@@ -242,6 +245,7 @@ This is an automated confirmation from our AI support system.
             "name": form_data.name,
         },
         "content": form_data.message,
+        "timestamp": datetime.utcnow().isoformat(),
         "metadata": {
             "subject": form_data.subject,
             "priority": form_data.priority,
@@ -250,7 +254,7 @@ This is an automated confirmation from our AI support system.
     }
 
     await kafka_producer.publish(
-        topic="fte.channels.webform.inbound",
+        topic="fte.tickets.incoming",
         message=message_payload,
         key=form_data.email,  # Partition by customer email
     )

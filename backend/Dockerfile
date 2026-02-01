@@ -35,7 +35,6 @@ COPY --from=builder /root/.local /root/.local
 
 # Copy application code
 COPY src/ ./src/
-COPY __init__.py .
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && \
