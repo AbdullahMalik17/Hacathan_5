@@ -1,0 +1,43 @@
+# Fly.io Configuration for Backend
+# Defines two processes: 'web' (API) and 'worker' (Kafka consumer) in the same app.
+
+app = "customer-success-backend-REPLACE_ME" # ⚠️ Change this to a unique name
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Default environment variables
+  LOG_LEVEL = "INFO"
+  KAFKA_CONSUMER_GROUP = "fly-agent-workers"
+  # Security: Use SASL_SSL for Upstash/Cloud Kafka
+  KAFKA_SECURITY_PROTOCOL = "SASL_SSL"
+  KAFKA_SASL_MECHANISM = "SCRAM-SHA-256"
+
+# Process definitions
+[processes]
+  web = "uvicorn src.main:app --host 0.0.0.0 --port 8000"
+  worker = "python -m src.workers.message_processor"
+
+# Service definition for the API (web process)
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["web"]
+
+# Health checks for the API
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
+
+# VM Configuration
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

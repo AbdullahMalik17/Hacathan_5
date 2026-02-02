@@ -13,38 +13,41 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
+# Create virtual environment
+RUN python -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
+# Copy requirements
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Install dependencies into venv
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Runtime image
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install runtime dependencies only
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     libpq5 \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python packages from builder
-COPY --from=builder /root/.local /root/.local
+# Create non-root user
+RUN useradd -m -u 1000 appuser
+
+# Copy virtual environment from builder
+COPY --from=builder --chown=appuser:appuser /app/venv /app/venv
 
 # Copy application code
-COPY src/ ./src/
-
-# Create non-root user for security
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+COPY --chown=appuser:appuser src/ ./src/
 
 # Switch to non-root user
 USER appuser
 
-# Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH
+# Enable venv
+ENV PATH="/app/venv/bin:$PATH"
 
 # Expose port
 EXPOSE 8000

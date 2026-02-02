@@ -8,13 +8,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, status, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from .config import get_settings
 from .middleware.correlation_id import CorrelationIdMiddleware
 from .middleware.logging import StructuredLoggingMiddleware, setup_logging
 from .services.database import db_service
 from .services.kafka_producer import kafka_producer
+from .monitoring.metrics import metrics_collector
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -156,6 +157,20 @@ async def readiness_check():
 
 
 # ============================================================================
+# Metrics Endpoint
+# ============================================================================
+
+@app.get("/metrics", status_code=status.HTTP_200_OK)
+async def metrics_endpoint():
+    """
+    Prometheus metrics endpoint.
+    
+    Returns application metrics in Prometheus format.
+    """
+    return Response(content=metrics_collector.get_metrics(), media_type="text/plain")
+
+
+# ============================================================================
 # Root endpoint
 # ============================================================================
 
@@ -170,6 +185,9 @@ async def root():
         "health_endpoints": {
             "health": "/health",
             "readiness": "/ready",
+        },
+        "monitoring_endpoints": {
+            "metrics": "/metrics"
         }
     }
 
