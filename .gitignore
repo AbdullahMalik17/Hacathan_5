@@ -85,5 +85,4 @@ kubeconfig*
 *.temp
 .cache/
 venv_linux/
-miniku
-minikube
+minikube-linux-amd64 
