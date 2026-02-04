@@ -85,4 +85,7 @@ kubeconfig*
 *.temp
 .cache/
 venv_linux/
-minikube-linux-amd64 
+minikube-linux-amd64
+backend.tar.gz
+*.tar.gz
+.serena/
