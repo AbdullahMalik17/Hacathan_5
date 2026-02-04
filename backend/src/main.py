@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Customer Success Digital FTE",
     description="AI-powered customer support agent handling Email, WhatsApp, and Web Form channels",
-    version="1.0.0",
+    version="1.0.2",
     lifespan=lifespan,
 )
 

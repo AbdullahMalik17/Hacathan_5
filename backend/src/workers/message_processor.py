@@ -51,7 +51,14 @@ class MessageProcessor:
             'enable.auto.commit': False,  # Manual commit for at-least-once delivery
             'max.poll.interval.ms': 300000,  # 5 minutes max processing time
             'session.timeout.ms': 60000,  # 1 minute session timeout
+            'security.protocol': settings.KAFKA_SECURITY_PROTOCOL,
         }
+
+        # Add SASL settings if provided
+        if settings.KAFKA_SASL_USERNAME:
+            config['sasl.mechanism'] = settings.KAFKA_SASL_MECHANISM
+            config['sasl.username'] = settings.KAFKA_SASL_USERNAME
+            config['sasl.password'] = settings.KAFKA_SASL_PASSWORD
 
         consumer = Consumer(config)
         logger.info(f"Kafka consumer created: group={settings.KAFKA_CONSUMER_GROUP}")

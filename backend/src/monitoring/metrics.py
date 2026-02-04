@@ -242,7 +242,7 @@ class MetricsCollector:
 metrics_collector = MetricsCollector()
 
 
-def metrics_middleware(request: Request, call_next):
+async def metrics_middleware(request: Request, call_next):
     """Middleware to collect metrics for each request."""
     start_time = time.time()
     

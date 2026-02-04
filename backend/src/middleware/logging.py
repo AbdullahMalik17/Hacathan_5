@@ -128,7 +128,7 @@ def setup_logging(log_level: str = "INFO"):
     structlog.configure(
         processors=[
             structlog.contextvars.merge_contextvars,
-            structlog.stdlib.filter_and_log_level,
+            structlog.stdlib.filter_by_level,
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.stdlib.add_logger_name,
             structlog.stdlib.add_log_level,

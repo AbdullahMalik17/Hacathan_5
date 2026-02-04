@@ -38,7 +38,15 @@ class KafkaProducerService:
                 'compression.type': 'snappy',  # Compress messages
                 'linger.ms': 10,  # Batch messages for 10ms
                 'batch.size': 16384,  # 16KB batch size
+                'security.protocol': settings.KAFKA_SECURITY_PROTOCOL,
             }
+
+            # Add SASL settings if provided
+            if settings.KAFKA_SASL_USERNAME:
+                config['sasl.mechanism'] = settings.KAFKA_SASL_MECHANISM
+                config['sasl.username'] = settings.KAFKA_SASL_USERNAME
+                config['sasl.password'] = settings.KAFKA_SASL_PASSWORD
+
             self._producer = Producer(config)
             logger.info(f"Kafka producer initialized: {settings.KAFKA_BOOTSTRAP_SERVERS}")
         except Exception as e:

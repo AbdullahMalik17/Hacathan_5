@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     KAFKA_BOOTSTRAP_SERVERS: str = Field(default="localhost:9092")
     KAFKA_CONSUMER_GROUP: str = Field(default="agent-workers")
     KAFKA_PARTITION_COUNT: int = Field(default=12, ge=1)
+    KAFKA_SECURITY_PROTOCOL: str = Field(default="PLAINTEXT")
+    KAFKA_SASL_MECHANISM: str = Field(default="PLAIN")
+    KAFKA_SASL_USERNAME: Optional[str] = Field(default=None)
+    KAFKA_SASL_PASSWORD: Optional[str] = Field(default=None)
 
     # OpenAI Configuration
     OPENAI_API_KEY: str = Field(default="", description="OpenAI API key for agent")
