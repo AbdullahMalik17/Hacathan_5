@@ -8,21 +8,31 @@ import {
   User,
   Loader2,
   Minimize2,
-  Maximize2,
   X,
   Sparkles,
+  ThumbsUp,
+  ThumbsDown,
+  Copy,
+  RotateCcw,
+  Mic,
+  Paperclip,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface Message {
   id: string
   role: "user" | "assistant" | "system"
   content: string
   timestamp: Date
+  reaction?: "like" | "dislike"
 }
 
 interface ChatWidgetProps {
@@ -51,6 +61,7 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -60,6 +71,12 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
 
   useEffect(() => {
     scrollToBottom()
+  }, [messages])
+
+  useEffect(() => {
+    if (messages.length > 2) {
+      setShowSuggestions(false)
+    }
   }, [messages])
 
   const sendMessage = async (content: string) => {
@@ -75,10 +92,9 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsLoading(true)
+    setShowSuggestions(false)
 
     try {
-      // In production, this would call your agent API
-      // For now, we'll simulate a response
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -99,7 +115,6 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
         const data = await response.json()
         assistantContent = data.response || data.message
       } else {
-        // Fallback simulated response for demo
         assistantContent = getSimulatedResponse(content)
       }
 
@@ -128,6 +143,34 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
     sendMessage(question)
   }
 
+  const handleReaction = (messageId: string, reaction: "like" | "dislike") => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId ? { ...m, reaction: m.reaction === reaction ? undefined : reaction } : m
+      )
+    )
+    toast.success(reaction === "like" ? "Thanks for your feedback!" : "We'll work to improve!")
+  }
+
+  const copyMessage = (content: string) => {
+    navigator.clipboard.writeText(content)
+    toast.success("Copied to clipboard!")
+  }
+
+  const clearChat = () => {
+    setMessages([
+      {
+        id: "welcome-new",
+        role: "assistant",
+        content:
+          "Hello! I'm your AI support assistant. How can I help you today?",
+        timestamp: new Date(),
+      },
+    ])
+    setShowSuggestions(true)
+    toast.success("Chat cleared!")
+  }
+
   // Simulated response for demo purposes
   function getSimulatedResponse(userMessage: string): string {
     const lowerMessage = userMessage.toLowerCase()
@@ -153,7 +196,7 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
     }
 
     if (lowerMessage.includes("thank")) {
-      return "You're very welcome! I'm glad I could help. If you have any more questions in the future, don't hesitate to reach out. Have a great day! 😊"
+      return "You're very welcome! I'm glad I could help. If you have any more questions in the future, don't hesitate to reach out. Have a great day!"
     }
 
     return "Thank you for your message! I'm analyzing your request to provide the best possible assistance.\n\nBased on what you've shared, I'd recommend:\n\n1. Checking our FAQ section for quick answers\n2. Reviewing your account dashboard for relevant information\n3. If this is urgent, I can escalate to our human support team\n\nCould you provide more details about what you need help with? This will help me assist you better."
@@ -161,158 +204,321 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
 
   if (!fullPage && isMinimized) {
     return (
-      <Button
-        onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
-        size="icon"
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        className="fixed bottom-6 right-6 z-50"
       >
-        <Bot className="h-6 w-6" />
-      </Button>
+        <Button
+          onClick={() => setIsMinimized(false)}
+          className="h-14 w-14 rounded-full shadow-lg btn-gradient btn-glow"
+          size="icon"
+        >
+          <Bot className="h-6 w-6" />
+        </Button>
+      </motion.div>
     )
   }
 
   const containerClasses = fullPage
-    ? "flex flex-col h-[calc(100vh-12rem)]"
-    : "fixed bottom-6 right-6 w-[400px] h-[600px] flex flex-col rounded-lg border bg-card shadow-2xl"
+    ? "flex flex-col h-[calc(100vh-12rem)] max-w-4xl mx-auto"
+    : "fixed bottom-6 right-6 w-[420px] h-[650px] flex flex-col rounded-2xl border bg-card shadow-2xl z-50 overflow-hidden"
 
   return (
-    <div className={containerClasses}>
+    <motion.div
+      initial={!fullPage ? { opacity: 0, y: 20, scale: 0.95 } : false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      className={containerClasses}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between border-b bg-primary px-4 py-3 text-primary-foreground rounded-t-lg">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent">
-            <Sparkles className="h-4 w-4 text-primary" />
+      <div className="flex items-center justify-between border-b bg-gradient-to-r from-primary to-accent px-4 py-3 text-white">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Avatar className="h-10 w-10 border-2 border-white/30">
+              <AvatarImage src="/ai-avatar.png" />
+              <AvatarFallback className="bg-white/20 text-white">
+                <Sparkles className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white" />
           </div>
           <div>
-            <p className="font-medium">AI Support Assistant</p>
-            <p className="text-xs text-primary-foreground/70">
-              {isLoading ? "Typing..." : "Online"}
+            <p className="font-semibold">AI Support Assistant</p>
+            <p className="text-xs text-white/80 flex items-center gap-1">
+              {isLoading ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
+                  Typing...
+                </>
+              ) : (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  Online
+                </>
+              )}
             </p>
           </div>
         </div>
-        {!fullPage && (
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-white hover:bg-white/10"
+                onClick={clearChat}
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Clear chat</TooltipContent>
+          </Tooltip>
+          {!fullPage && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/10"
+              className="h-8 w-8 text-white hover:bg-white/10"
               onClick={() => setIsMinimized(true)}
             >
               <Minimize2 className="h-4 w-4" />
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={cn(
-              "flex gap-2",
-              message.role === "user" ? "flex-row-reverse" : "flex-row"
-            )}
-          >
-            <div
+      <ScrollArea className="flex-1 p-4">
+        <AnimatePresence initial={false}>
+          {messages.map((message, index) => (
+            <motion.div
+              key={message.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
               className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                message.role === "user" ? "bg-primary" : "bg-accent"
+                "flex gap-3 mb-4",
+                message.role === "user" ? "flex-row-reverse" : "flex-row"
               )}
             >
-              {message.role === "user" ? (
-                <User className="h-4 w-4 text-primary-foreground" />
-              ) : (
-                <Bot className="h-4 w-4 text-primary" />
-              )}
-            </div>
-            <div
-              className={cn(
-                "max-w-[80%] rounded-lg px-4 py-2",
-                message.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
-              )}
-            >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-              <p
-                className={cn(
-                  "mt-1 text-xs",
+              <Avatar className={cn(
+                "h-8 w-8 shrink-0",
+                message.role === "user" ? "" : "ring-2 ring-primary/20"
+              )}>
+                <AvatarFallback className={cn(
                   message.role === "user"
-                    ? "text-primary-foreground/70"
-                    : "text-muted-foreground"
-                )}
-              >
-                {message.timestamp.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            </div>
-          </div>
-        ))}
-
-        {isLoading && (
-          <div className="flex gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent">
-              <Bot className="h-4 w-4 text-primary" />
-            </div>
-            <div className="rounded-lg bg-muted px-4 py-3">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm text-muted-foreground">Thinking...</span>
+                    ? "bg-muted"
+                    : "bg-gradient-to-br from-primary to-accent text-white"
+                )}>
+                  {message.role === "user" ? (
+                    <User className="h-4 w-4" />
+                  ) : (
+                    <Bot className="h-4 w-4" />
+                  )}
+                </AvatarFallback>
+              </Avatar>
+              <div className={cn(
+                "max-w-[75%] group",
+                message.role === "user" ? "items-end" : "items-start"
+              )}>
+                <div
+                  className={cn(
+                    "rounded-2xl px-4 py-2.5 shadow-sm",
+                    message.role === "user"
+                      ? "message-bubble-user"
+                      : "bg-muted rounded-tl-sm"
+                  )}
+                >
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                </div>
+                <div className={cn(
+                  "flex items-center gap-2 mt-1.5 px-1",
+                  message.role === "user" ? "justify-end" : "justify-start"
+                )}>
+                  <span className="text-[10px] text-muted-foreground">
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                  {message.role === "assistant" && (
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={cn(
+                              "h-6 w-6",
+                              message.reaction === "like" && "text-emerald-500"
+                            )}
+                            onClick={() => handleReaction(message.id, "like")}
+                          >
+                            <ThumbsUp className="h-3 w-3" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Helpful</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={cn(
+                              "h-6 w-6",
+                              message.reaction === "dislike" && "text-red-500"
+                            )}
+                            onClick={() => handleReaction(message.id, "dislike")}
+                          >
+                            <ThumbsDown className="h-3 w-3" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Not helpful</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => copyMessage(message.content)}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Copy</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {/* Typing Indicator */}
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex gap-3 mb-4"
+            >
+              <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white">
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="rounded-2xl rounded-tl-sm bg-muted px-4 py-3">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div ref={messagesEndRef} />
-      </div>
+      </ScrollArea>
 
-      {/* Suggested Questions (only show if few messages) */}
-      {messages.length <= 2 && !isLoading && (
-        <div className="border-t px-4 py-3">
-          <p className="text-xs text-muted-foreground mb-2">
-            Suggested questions:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {suggestedQuestions.map((question) => (
-              <Badge
-                key={question}
-                variant="secondary"
-                className="cursor-pointer hover:bg-accent hover:text-primary transition-colors"
-                onClick={() => handleSuggestedQuestion(question)}
-              >
-                {question}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Suggested Questions */}
+      <AnimatePresence>
+        {showSuggestions && !isLoading && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="border-t px-4 py-3 bg-muted/30"
+          >
+            <p className="text-xs text-muted-foreground mb-2 font-medium">
+              Suggested questions:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {suggestedQuestions.map((question) => (
+                <motion.div
+                  key={question}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-primary hover:text-white transition-all duration-200 py-1.5 px-3"
+                    onClick={() => handleSuggestedQuestion(question)}
+                  >
+                    {question}
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="border-t p-4">
+      <form onSubmit={handleSubmit} className="border-t p-4 bg-background">
         <div className="flex gap-2">
-          <Input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button type="submit" disabled={isLoading || !input.trim()}>
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
+          <div className="relative flex-1">
+            <Input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              disabled={isLoading}
+              className="pr-20 h-12 rounded-xl border-2 focus:border-primary/50 transition-colors input-focus-ring"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    disabled
+                  >
+                    <Paperclip className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Attach file (coming soon)</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    disabled
+                  >
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Voice input (coming soon)</TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              className="h-12 w-12 rounded-xl btn-gradient"
+              size="icon"
+            >
+              {isLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
+            </Button>
+          </motion.div>
         </div>
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          Powered by AI • Available 24/7
+        <p className="mt-2 text-center text-[10px] text-muted-foreground">
+          Powered by AI • Available 24/7 • Press Enter to send
         </p>
       </form>
-    </div>
+    </motion.div>
   )
 }

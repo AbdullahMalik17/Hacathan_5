@@ -1,37 +1,32 @@
+"use client"
+
 import { Metadata } from "next"
 import { SupportForm } from "@/components/support-form"
-import { Mail, MessageCircle, Globe, Clock, Zap, Shield, Sparkles } from "lucide-react"
-
-export const metadata: Metadata = {
-  title: "Contact Support",
-  description:
-    "Get help from our AI-powered support team. Available 24/7 via email, WhatsApp, or web form.",
-}
+import { Mail, MessageCircle, Globe, Clock, Zap, Shield, Sparkles, ChevronRight, HelpCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Progress } from "@/components/ui/progress"
+import { FadeIn, FadeInView, motion } from "@/components/motion"
 
 const features = [
   {
     icon: Zap,
     title: "Instant AI Responses",
     description: "Our AI agent processes your request and responds within minutes.",
-    color: "from-sky-500 to-blue-600",
-    bgColor: "bg-sky-50",
-    iconColor: "text-sky-600",
+    gradient: "from-sky-500 to-blue-600",
   },
   {
     icon: Clock,
     title: "24/7 Availability",
     description: "Support available round the clock, every day of the year.",
-    color: "from-blue-500 to-indigo-500",
-    bgColor: "bg-blue-50",
-    iconColor: "text-blue-600",
+    gradient: "from-blue-500 to-indigo-500",
   },
   {
     icon: Shield,
     title: "Secure & Private",
     description: "Your data is encrypted and handled with care.",
-    color: "from-emerald-500 to-teal-500",
-    bgColor: "bg-emerald-50",
-    iconColor: "text-emerald-600",
+    gradient: "from-emerald-500 to-teal-500",
   },
 ]
 
@@ -42,6 +37,7 @@ const channels = [
     description: "support@company.com",
     responseTime: "Within 5 minutes",
     gradient: "from-blue-500 to-indigo-500",
+    progress: 95,
   },
   {
     icon: MessageCircle,
@@ -49,6 +45,7 @@ const channels = [
     description: "+1 (555) 123-4567",
     responseTime: "Within 2 minutes",
     gradient: "from-emerald-500 to-teal-500",
+    progress: 98,
   },
   {
     icon: Globe,
@@ -56,68 +53,92 @@ const channels = [
     description: "Submit below",
     responseTime: "Within 5 minutes",
     gradient: "from-purple-500 to-pink-500",
+    progress: 95,
+  },
+]
+
+const faqItems = [
+  {
+    question: "What are your response times?",
+    answer: "Our AI agent typically responds within 2-5 minutes for all channels. High-priority requests are handled first. During peak hours, response times may be slightly longer, but we always aim to respond as quickly as possible.",
+  },
+  {
+    question: "Can I track my support ticket?",
+    answer: "Yes! After submitting a request, you'll receive a unique ticket ID. You can use this ID to track the status of your request anytime through our ticket tracking page. You'll also receive email updates as your ticket progresses.",
+  },
+  {
+    question: "Will I talk to a human?",
+    answer: "Our AI handles most requests efficiently and accurately. However, complex issues are automatically escalated to our human support team. You can also request human assistance at any time during your conversation.",
+  },
+  {
+    question: "Is my data secure?",
+    answer: "Absolutely. All communications are encrypted using bank-grade encryption (AES-256). We follow strict data protection guidelines including GDPR compliance. Your data is never shared with third parties.",
+  },
+  {
+    question: "What issues can the AI help with?",
+    answer: "Our AI assistant can help with account issues, password resets, order tracking, billing questions, product information, technical troubleshooting, and general inquiries. For sensitive matters, we'll connect you with a human agent.",
+  },
+  {
+    question: "How do I escalate to a human agent?",
+    answer: "Simply type 'speak to human' or 'escalate' in the chat, or select 'High Priority' when submitting a ticket. Our system will automatically route your request to an available human agent.",
   },
 ]
 
 export default function SupportPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)]">
-      {/* Hero Section with animated background */}
-      <section className="relative overflow-hidden border-b">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-
-        {/* Animated blobs - blue/purple/indigo tones */}
-        <div className="absolute top-0 -left-40 h-80 w-80 rounded-full bg-indigo-400 opacity-20 blur-3xl animate-float" />
-        <div className="absolute top-20 right-0 h-80 w-80 rounded-full bg-blue-400 opacity-20 blur-3xl animate-float" style={{ animationDelay: "2s" }} />
-        <div className="absolute -bottom-20 left-1/2 h-80 w-80 rounded-full bg-violet-400 opacity-20 blur-3xl animate-float" style={{ animationDelay: "4s" }} />
+      {/* Hero Section */}
+      <section className="relative overflow-hidden border-b hero-bg">
+        {/* Animated blobs */}
+        <div className="blob blob-1 w-80 h-80 top-0 -left-40 opacity-40" />
+        <div className="blob blob-2 w-80 h-80 top-20 right-0 opacity-30" />
+        <div className="blob blob-3 w-80 h-80 -bottom-20 left-1/2 opacity-30" />
 
         {/* Grid pattern */}
-        <div className="absolute inset-0 pattern-grid" />
+        <div className="absolute inset-0 pattern-grid opacity-40" />
 
         <div className="container relative py-20 md:py-28">
           <div className="mx-auto max-w-3xl text-center">
             {/* Badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-              <Sparkles className="h-4 w-4" />
-              AI-Powered Support
-            </div>
+            <FadeIn delay={0} direction="down">
+              <Badge className="mb-6 badge-gradient">
+                <Sparkles className="h-3 w-3 mr-1" />
+                AI-Powered Support
+              </Badge>
+            </FadeIn>
 
-            <h1 className="animate-fade-in font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-                How can we
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                help you today?
-              </span>
-            </h1>
+            <FadeIn delay={0.1} direction="up">
+              <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+                <span className="text-foreground">How can we</span>
+                <br />
+                <span className="gradient-text-animated">help you today?</span>
+              </h1>
+            </FadeIn>
 
-            <p className="mt-6 animate-fade-in text-lg text-muted-foreground md:text-xl" style={{ animationDelay: "0.1s" }}>
-              Our AI-powered support team is available 24/7 to assist you with
-              any questions or issues. Get instant, accurate responses.
-            </p>
+            <FadeIn delay={0.2} direction="up">
+              <p className="mt-6 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto">
+                Our AI-powered support team is available{" "}
+                <span className="text-primary font-semibold">24/7</span> to assist you with
+                any questions or issues. Get instant, accurate responses.
+              </p>
+            </FadeIn>
           </div>
 
           {/* Feature cards */}
           <div className="mt-16 grid gap-6 md:grid-cols-3">
             {features.map((feature, index) => (
-              <div
-                key={feature.title}
-                className="animate-slide-up group relative rounded-2xl border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                {/* Gradient border on hover */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 transition-opacity group-hover:opacity-100 -z-10 blur-xl"
-                  style={{ background: `linear-gradient(135deg, var(--tw-gradient-stops))` }}
-                />
-
-                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${feature.bgColor}`}>
-                  <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
-                </div>
-                <h3 className="font-display text-lg font-semibold">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
-              </div>
+              <FadeInView key={feature.title} delay={index * 0.1} direction="up">
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  className="feature-card group bg-card/50 backdrop-blur-sm"
+                >
+                  <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.gradient} shadow-lg shadow-primary/10 group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-display text-lg font-semibold">{feature.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
+                </motion.div>
+              </FadeInView>
             ))}
           </div>
         </div>
@@ -129,96 +150,123 @@ export default function SupportPage() {
           <div className="grid gap-12 lg:grid-cols-3">
             {/* Support Form */}
             <div className="lg:col-span-2">
-              <SupportForm />
+              <FadeInView direction="up">
+                <Tabs defaultValue="form" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="form" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                      Submit Request
+                    </TabsTrigger>
+                    <TabsTrigger value="chat" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                      Live Chat
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="form">
+                    <SupportForm />
+                  </TabsContent>
+                  <TabsContent value="chat">
+                    <div className="rounded-2xl border bg-card p-8 text-center">
+                      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-lg">
+                        <MessageCircle className="h-8 w-8 text-white" />
+                      </div>
+                      <h3 className="font-display text-xl font-semibold mb-2">Start a Live Chat</h3>
+                      <p className="text-muted-foreground mb-6">
+                        Get instant help from our AI assistant. Available 24/7.
+                      </p>
+                      <motion.a
+                        href="/chat"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="inline-flex items-center justify-center gap-2 rounded-full btn-gradient px-8 py-3 text-white font-semibold shadow-lg"
+                      >
+                        Open Chat
+                        <ChevronRight className="h-4 w-4" />
+                      </motion.a>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </FadeInView>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Contact Channels */}
-              <div className="rounded-2xl border bg-card p-6 shadow-sm">
-                <h3 className="font-display text-lg font-semibold">
-                  Other Ways to Reach Us
-                </h3>
-                <div className="mt-6 space-y-4">
-                  {channels.map((channel) => (
-                    <div key={channel.title} className="group flex gap-4 rounded-xl p-3 transition-colors hover:bg-muted/50">
-                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${channel.gradient} shadow-lg shadow-primary/10`}>
-                        <channel.icon className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{channel.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {channel.description}
-                        </p>
-                        <p className="mt-1 text-xs font-medium text-accent">
-                          {channel.responseTime}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+              <FadeInView delay={0.1} direction="left">
+                <div className="rounded-2xl border bg-card p-6 shadow-sm">
+                  <h3 className="font-display text-lg font-semibold mb-6">
+                    Other Ways to Reach Us
+                  </h3>
+                  <div className="space-y-4">
+                    {channels.map((channel) => (
+                      <motion.div
+                        key={channel.title}
+                        whileHover={{ x: 5 }}
+                        className="group flex gap-4 rounded-xl p-3 transition-colors hover:bg-muted/50 cursor-pointer"
+                      >
+                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${channel.gradient} shadow-lg shadow-primary/10 group-hover:scale-105 transition-transform`}>
+                          <channel.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold">{channel.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {channel.description}
+                          </p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <Progress value={channel.progress} className="h-1.5 flex-1" />
+                            <span className="text-xs font-medium text-primary">
+                              {channel.responseTime}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </FadeInView>
 
-              {/* FAQ Preview */}
-              <div className="rounded-2xl border bg-card p-6 shadow-sm">
-                <h3 className="font-display text-lg font-semibold">
-                  Common Questions
-                </h3>
-                <div className="mt-4 space-y-3">
-                  <details className="group rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/30">
-                    <summary className="cursor-pointer text-sm font-medium text-foreground hover:text-primary transition-colors">
-                      What are your response times?
-                    </summary>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                      Our AI agent typically responds within 2-5 minutes for all
-                      channels. High-priority requests are handled first.
-                    </p>
-                  </details>
-                  <details className="group rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/30">
-                    <summary className="cursor-pointer text-sm font-medium text-foreground hover:text-primary transition-colors">
-                      Can I track my support ticket?
-                    </summary>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                      Yes! After submitting, you'll receive a ticket ID that you
-                      can use to track the status of your request.
-                    </p>
-                  </details>
-                  <details className="group rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/30">
-                    <summary className="cursor-pointer text-sm font-medium text-foreground hover:text-primary transition-colors">
-                      Will I talk to a human?
-                    </summary>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                      Our AI handles most requests, but complex issues are
-                      automatically escalated to our human support team.
-                    </p>
-                  </details>
-                  <details className="group rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/30">
-                    <summary className="cursor-pointer text-sm font-medium text-foreground hover:text-primary transition-colors">
-                      Is my data secure?
-                    </summary>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                      Absolutely. All communications are encrypted, and we follow
-                      strict data protection guidelines.
-                    </p>
-                  </details>
+              {/* FAQ */}
+              <FadeInView delay={0.2} direction="left">
+                <div className="rounded-2xl border bg-card p-6 shadow-sm">
+                  <div className="flex items-center gap-2 mb-6">
+                    <HelpCircle className="h-5 w-5 text-primary" />
+                    <h3 className="font-display text-lg font-semibold">
+                      Frequently Asked Questions
+                    </h3>
+                  </div>
+                  <Accordion type="single" collapsible className="w-full">
+                    {faqItems.map((item, index) => (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger className="text-left text-sm font-medium hover:text-primary transition-colors">
+                          {item.question}
+                        </AccordionTrigger>
+                        <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
+                          {item.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
                 </div>
-              </div>
+              </FadeInView>
 
               {/* Status Indicator */}
-              <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-6 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="h-4 w-4 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50" />
-                    <div className="absolute inset-0 h-4 w-4 animate-ping rounded-full bg-emerald-500 opacity-75" />
+              <FadeInView delay={0.3} direction="left">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-800 p-6 shadow-sm"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="h-4 w-4 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50" />
+                      <div className="absolute inset-0 h-4 w-4 animate-ping rounded-full bg-emerald-500 opacity-75" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-emerald-900 dark:text-emerald-100">All Systems Operational</p>
+                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                        Support is available 24/7
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-emerald-900">All Systems Operational</p>
-                    <p className="text-sm text-emerald-700">
-                      Support is available 24/7
-                    </p>
-                  </div>
-                </div>
-              </div>
+                </motion.div>
+              </FadeInView>
             </div>
           </div>
         </div>

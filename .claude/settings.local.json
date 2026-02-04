@@ -35,7 +35,12 @@
       "Bash(__NEW_LINE_8001c46e6658527c__ docker exec customer-success-kafka kafka-topics --create --topic fte.escalations --bootstrap-server localhost:9092 --partitions 12 --replication-factor 1)",
       "Bash(__NEW_LINE_8001c46e6658527c__ docker exec customer-success-kafka kafka-topics --create --topic fte.dlq --bootstrap-server localhost:9092 --partitions 12 --replication-factor 1)",
       "Bash(__NEW_LINE_8001c46e6658527c__ echo \"Topics created. Listing all topics:\")",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "mcp__serena__list_dir",
+      "mcp__serena__activate_project",
+      "Bash(cd /mnt/e/WEB\\\\ DEVELOPMENT/Hacathan_5/frontend && npx shadcn@latest add:*)",
+      "Bash(npx shadcn@latest init --defaults)",
+      "Bash(npx shadcn@latest add:*)"
     ]
   }
 }
