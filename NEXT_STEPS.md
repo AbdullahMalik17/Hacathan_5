@@ -49,7 +49,7 @@
 **What to do:**
 ```bash
 # Run the automated deployment
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 **What it does:**
@@ -113,7 +113,7 @@ Message processor started. Listening for messages...
 **Option A: Use status script**
 ```bash
 # In a third terminal
-./check_status.sh
+./scripts/check_status.sh
 ```
 
 Expected output:
@@ -261,7 +261,7 @@ Your deployment is successful when:
 **Solution:**
 - Edit `backend/.env`
 - Add your actual OpenAI API key
-- Save and re-run `./deploy.sh`
+- Save and re-run `./scripts/deploy.sh`
 
 ### Problem: Kafka consumer not processing messages
 **Solution:**
@@ -332,7 +332,7 @@ Once Phase 3 testing is complete, you have **3 options**:
 
 - **Full deployment guide:** [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 - **Testing guide:** [TESTING.md](TESTING.md)
-- **Quick status check:** `./check_status.sh`
+- **Quick status check:** `./scripts/check_status.sh`
 - **View logs:** `docker-compose -f infrastructure/docker-compose.yml logs -f`
 
 ---
@@ -341,7 +341,7 @@ Once Phase 3 testing is complete, you have **3 options**:
 
 1. ✅ Start Docker Desktop
 2. ✅ Set OPENAI_API_KEY in backend/.env
-3. ✅ Run `./deploy.sh`
+3. ✅ Run `./scripts/deploy.sh`
 4. ✅ Start FastAPI and Kafka consumer
 5. ✅ Run test script
 6. ✅ Verify in database

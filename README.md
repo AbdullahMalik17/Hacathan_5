@@ -46,14 +46,14 @@ AI-powered customer support agent that handles inquiries 24/7 across Email, What
 echo 'OPENAI_API_KEY=sk-proj-your-key-here' >> backend/.env
 
 # 3. Run deployment script
-./deploy.sh
+./scripts/deploy.sh
 
 # 4. Start services (in separate terminals)
 python -m backend.src.main                    # FastAPI server
 python backend/src/workers/message_processor.py  # Kafka consumer
 
 # 5. Check status
-./check_status.sh
+./scripts/check_status.sh
 ```
 
 ---
@@ -92,8 +92,8 @@ customer-success-fte/
 ├── scripts/
 │   ├── seed_knowledge_base.py  # Seed KB with embeddings
 │   └── setup_kafka_topics.sh   # Create Kafka topics
-├── deploy.sh                  # Deployment script
-├── check_status.sh            # Status checker
+├── scripts/deploy.sh          # Deployment script
+├── scripts/check_status.sh    # Status checker
 ├── DEPLOYMENT_GUIDE.md        # Full deployment guide
 └── TESTING.md                 # Testing guide
 ```
@@ -199,7 +199,7 @@ customer-success-fte/
 
 1. **Check Infrastructure**
    ```bash
-   ./check_status.sh
+   ./scripts/check_status.sh
    ```
 
 2. **Test Health Endpoints**
@@ -317,7 +317,7 @@ TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 echo 'OPENAI_API_KEY=sk-proj-your-key' >> backend/.env
 
 # Run deployment script
-./deploy.sh
+./scripts/deploy.sh
 
 # Start services
 python -m backend.src.main
@@ -345,7 +345,7 @@ Copyright © 2026. All rights reserved.
 ## 🆘 Support
 
 - **Issues**: Check DEPLOYMENT_GUIDE.md troubleshooting section
-- **Status**: Run `./check_status.sh`
+- **Status**: Run `./scripts/check_status.sh`
 - **Logs**: `docker-compose -f infrastructure/docker-compose.yml logs -f`
 
 ---

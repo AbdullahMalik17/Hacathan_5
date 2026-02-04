@@ -1,0 +1,29 @@
+# prometheus.yml - Prometheus configuration for Customer Success Digital FTE
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # Alerting rules will go here
+  - "fte_alerting_rules.yml"
+
+scrape_configs:
+  # Scrape config for Customer Success Digital FTE
+  - job_name: 'customer-success-fte'
+    static_configs:
+      - targets: ['localhost:8000']  # Adjust this to your service endpoint
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: 'service'
+        replacement: 'customer-success-fte'
+
+  # Example: If you have multiple instances
+  # - job_name: 'customer-success-fte-cluster'
+  #   dns_sd_configs:
+  #     - names: ['customer-success-fte.internal']
+  #       type: 'A'
+  #       port: 8000

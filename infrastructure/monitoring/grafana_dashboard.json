@@ -1,0 +1,160 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Customer Success Digital FTE Dashboard",
+    "tags": ["customer-success", "fte", "support"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Health Overview",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "up{job=\"customer-success-fte\"}",
+            "legendFormat": "Service Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Requests per Second",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(fte_http_requests_total[1m]))",
+            "legendFormat": "Total Requests/sec"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(fte_http_requests_total{status_code=~\"5..\"}[1m])) / sum(rate(fte_http_requests_total[1m])) * 100",
+            "legendFormat": "Error Rate %"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Response Time (95th Percentile)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(fte_http_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "95th Percentile Response Time"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Customer Interactions by Channel",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(fte_customer_interactions_total[1m])) by (channel)",
+            "legendFormat": "{{channel}}"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Ticket Operations",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(fte_ticket_operations_total[1m])) by (operation)",
+            "legendFormat": "{{operation}}"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Agent Thinking Time",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(fte_agent_thinking_time_seconds_bucket[5m])) by (le, operation))",
+            "legendFormat": "{{operation}} (95th percentile)"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Escalations by Reason",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(increase(fte_escalations_total[1h])) by (reason)",
+            "legendFormat": "{{reason}}"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Active Conversations",
+        "type": "singlestat",
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "fte_active_conversations",
+            "legendFormat": "Active Conversations"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Message Queue Size",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 24},
+        "targets": [
+          {
+            "expr": "fte_message_queue_size",
+            "legendFormat": "{{queue_name}}"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Customer Satisfaction Score",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "targets": [
+          {
+            "expr": "avg_over_time(fte_customer_satisfaction_score[15m])",
+            "legendFormat": "Avg Satisfaction Score"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

@@ -59,7 +59,7 @@ We will deploy two separate Container Apps: one for the API and one for the Work
 You can use the provided helper script to automate the deployment:
 
 ```bash
-./deploy_azure.sh
+./scripts/deploy_azure.sh
 ```
 
 Or follow the manual steps below:
