@@ -94,8 +94,10 @@ customer-success-fte/
 │   └── setup_kafka_topics.sh   # Create Kafka topics
 ├── scripts/deploy.sh          # Deployment script
 ├── scripts/check_status.sh    # Status checker
-├── DEPLOYMENT_GUIDE.md        # Full deployment guide
-└── TESTING.md                 # Testing guide
+├── docs/                      # Project documentation
+│   ├── DEPLOYMENT_GUIDE.md    # Full deployment guide
+│   ├── TESTING.md             # Testing guide
+│   └── ...                    # Other guides
 ```
 
 ---
@@ -210,7 +212,7 @@ customer-success-fte/
 
 3. **Publish Test Message**
    ```bash
-   # See TESTING.md for full test script
+   # See docs/TESTING.md for full test script
    python -c "
    import asyncio
    from backend.src.services.kafka_producer import kafka_producer
@@ -234,7 +236,7 @@ customer-success-fte/
 
 ### End-to-End Testing
 
-See [TESTING.md](TESTING.md) for comprehensive testing guide.
+See [docs/TESTING.md](docs/TESTING.md) for comprehensive testing guide.
 
 ---
 
@@ -284,13 +286,14 @@ TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 ## 📚 Documentation
 
 ### Deployment Guides
-- [API_KEYS_GUIDE.md](API_KEYS_GUIDE.md) - **START HERE:** How to obtain all required API keys
-- [DEPLOY_LOCAL.md](DEPLOY_LOCAL.md) - Local Kubernetes deployment with Minikube
-- [DEPLOY_CLOUD.md](DEPLOY_CLOUD.md) - Production deployment to GKE/EKS/AKS/DigitalOcean
-- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Original deployment instructions
+- [docs/API_KEYS_GUIDE.md](docs/API_KEYS_GUIDE.md) - **START HERE:** How to obtain all required API keys
+- [docs/DEPLOY_LOCAL.md](docs/DEPLOY_LOCAL.md) - Local Kubernetes deployment with Minikube
+- [docs/DEPLOY_CLOUD.md](docs/DEPLOY_CLOUD.md) - Production deployment to GKE/EKS/AKS/DigitalOcean
+- [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) - Original deployment instructions
+- [docs/azure-deployment-guide.md](docs/azure-deployment-guide.md) - Azure deployment guide
 
 ### Testing & Development
-- [TESTING.md](TESTING.md) - Comprehensive testing guide
+- [docs/TESTING.md](docs/TESTING.md) - Comprehensive testing guide
 - [CLAUDE.md](CLAUDE.md) - Project development guidelines
 - [specs/001-customer-success-fte/](specs/001-customer-success-fte/) - Feature specifications
 
@@ -299,14 +302,14 @@ TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 ## 🎯 Next Steps
 
 ### Option 1: Local Deployment (Recommended for Testing) ⭐
-1. **Get API keys**: Follow [API_KEYS_GUIDE.md](API_KEYS_GUIDE.md) (OpenAI required)
-2. **Deploy locally**: Follow [DEPLOY_LOCAL.md](DEPLOY_LOCAL.md)
+1. **Get API keys**: Follow [docs/API_KEYS_GUIDE.md](docs/API_KEYS_GUIDE.md) (OpenAI required)
+2. **Deploy locally**: Follow [docs/DEPLOY_LOCAL.md](docs/DEPLOY_LOCAL.md)
 3. **Cost**: $0-5/month (OpenAI usage only)
 
 ### Option 2: Production Deployment
-1. **Get all API keys**: [API_KEYS_GUIDE.md](API_KEYS_GUIDE.md)
+1. **Get all API keys**: [docs/API_KEYS_GUIDE.md](docs/API_KEYS_GUIDE.md)
 2. **Choose platform**: DigitalOcean (recommended), GKE, EKS, or AKS
-3. **Deploy**: Follow [DEPLOY_CLOUD.md](DEPLOY_CLOUD.md)
+3. **Deploy**: Follow [docs/DEPLOY_CLOUD.md](docs/DEPLOY_CLOUD.md)
 4. **Configure webhooks**: Twilio WhatsApp + Gmail Pub/Sub
 5. **Set up monitoring**: Prometheus + Grafana
 6. **Cost**: ~$70-120/month (cloud + API usage)
@@ -344,7 +347,7 @@ Copyright © 2026. All rights reserved.
 
 ## 🆘 Support
 
-- **Issues**: Check DEPLOYMENT_GUIDE.md troubleshooting section
+- **Issues**: Check docs/DEPLOYMENT_GUIDE.md troubleshooting section
 - **Status**: Run `./scripts/check_status.sh`
 - **Logs**: `docker-compose -f infrastructure/docker-compose.yml logs -f`
 

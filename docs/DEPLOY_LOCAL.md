@@ -436,7 +436,7 @@ kubectl exec -it kafka-0 -- kafka-consumer-groups.sh --bootstrap-server localhos
 
 3. **Scale Workers**: KEDA will automatically scale based on Kafka lag
 
-4. **Production Deployment**: See DEPLOY_CLOUD.md for cloud platform deployment
+4. **Production Deployment**: See docs/DEPLOY_CLOUD.md for cloud platform deployment
 
 ---
 

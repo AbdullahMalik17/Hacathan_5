@@ -316,7 +316,7 @@ Complete reference for obtaining all API keys and credentials needed for the Cus
 - [ ] OpenAI API key obtained ($20 credit recommended)
 - [ ] Docker Desktop installed and running
 - [ ] Environment file created at `backend/.env` with OpenAI key
-- [ ] Ready to deploy locally with `./deploy.sh`
+- [ ] Ready to deploy locally with `./scripts/deploy.sh`
 
 **Cost:** $0-5 for testing (OpenAI usage only)
 
@@ -449,11 +449,11 @@ ngrok http 8000
 
 1. **For Local Testing:**
    - Get OpenAI API key only
-   - Follow: [DEPLOY_LOCAL.md](DEPLOY_LOCAL.md)
+   - Follow: [docs/DEPLOY_LOCAL.md](docs/DEPLOY_LOCAL.md)
 
 2. **For Production:**
    - Get all API keys from this guide
-   - Follow: [DEPLOY_CLOUD.md](DEPLOY_CLOUD.md)
+   - Follow: [docs/DEPLOY_CLOUD.md](docs/DEPLOY_CLOUD.md)
 
 3. **For Enterprise:**
    - Contact OpenAI for volume pricing

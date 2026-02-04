@@ -49,7 +49,8 @@ Before starting the deployment, ensure you have:
    ├── frontend/
    ├── infrastructure/
    ├── database/
-   └── scripts/
+   ├── scripts/
+   └── docs/
    ```
 
 ## Step 2: Deploy the Backend to DigitalOcean

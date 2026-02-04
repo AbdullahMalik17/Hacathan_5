@@ -330,8 +330,8 @@ Once Phase 3 testing is complete, you have **3 options**:
 
 ## Support Resources
 
-- **Full deployment guide:** [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
-- **Testing guide:** [TESTING.md](TESTING.md)
+- **Full deployment guide:** [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)
+- **Testing guide:** [docs/TESTING.md](docs/TESTING.md)
 - **Quick status check:** `./scripts/check_status.sh`
 - **View logs:** `docker-compose -f infrastructure/docker-compose.yml logs -f`
 
