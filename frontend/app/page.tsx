@@ -415,8 +415,12 @@ export default function LandingPage() {
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-white/10 blur-3xl" />
               <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-black/10 blur-3xl" />
-              <Float duration={4} distance={10} className="absolute top-10 left-10 w-20 h-20 rounded-full bg-white/5" />
-              <Float duration={5} distance={15} className="absolute bottom-10 right-10 w-16 h-16 rounded-full bg-white/5" />
+              <Float duration={4} distance={10} className="absolute top-10 left-10">
+                <div className="w-20 h-20 rounded-full bg-white/5" />
+              </Float>
+              <Float duration={5} distance={15} className="absolute bottom-10 right-10">
+                <div className="w-16 h-16 rounded-full bg-white/5" />
+              </Float>
 
               <div className="relative z-10">
                 <motion.div
