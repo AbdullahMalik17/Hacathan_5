@@ -51,7 +51,7 @@ const supportFormSchema = z.object({
 
 type SupportFormData = z.infer<typeof supportFormSchema>
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
 export function SupportForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -85,6 +85,18 @@ export function SupportForm() {
     setIsSubmitting(true)
 
     try {
+      if (!API_BASE_URL) {
+        // Demo mode - generate a mock ticket ID
+        const mockTicketId = `DEMO-${Date.now().toString(36).toUpperCase()}`
+        setTicketId(mockTicketId)
+        setSubmitSuccess(true)
+        reset()
+        toast.success("Demo: Support request submitted!", {
+          description: `Ticket ID: ${mockTicketId}`,
+        })
+        return
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/support/submit`, {
         method: "POST",
         headers: {
@@ -94,7 +106,7 @@ export function SupportForm() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.detail || "Failed to submit form")
       }
 

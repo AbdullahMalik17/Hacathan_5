@@ -1,7 +1,5 @@
 {
-  "version": 2,
   "framework": "nextjs",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://fte-api.wonderfulforest-cf47fc0f.southeastasia.azurecontainerapps.io"
-  }
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next"
 }

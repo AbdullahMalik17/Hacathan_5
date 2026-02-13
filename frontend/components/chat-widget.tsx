@@ -39,7 +39,7 @@ interface ChatWidgetProps {
   fullPage?: boolean
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
 const suggestedQuestions = [
   "How do I reset my password?",
@@ -95,25 +95,32 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
     setShowSuggestions(false)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: content,
-          conversation_history: messages.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-        }),
-      }).catch(() => null)
-
       let assistantContent: string
 
-      if (response && response.ok) {
-        const data = await response.json()
-        assistantContent = data.response || data.message
+      if (API_BASE_URL) {
+        const response = await fetch(`${API_BASE_URL}/api/chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: content,
+            conversation_history: messages.map((m) => ({
+              role: m.role,
+              content: m.content,
+            })),
+          }),
+        }).catch(() => null)
+
+        if (response && response.ok) {
+          const data = await response.json()
+          assistantContent = data.response || data.message
+        } else {
+          assistantContent = getSimulatedResponse(content)
+          if (response && !response.ok) {
+            toast.error("Backend unavailable. Showing demo response.")
+          }
+        }
       } else {
         assistantContent = getSimulatedResponse(content)
       }

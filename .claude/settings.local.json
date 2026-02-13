@@ -1,12 +1,24 @@
 {
   "permissions": {
     "allow": [
+      "Edit",
+      "Write",
       "Bash(git pull:*)",
       "Bash(git merge:*)",
       "Bash(git push:*)",
       "Bash(git branch:*)",
       "Bash(git rm:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(test:*)",
+      "Bash(git add:*)",
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(git -C /mnt/e/WEB DEVELOPMENT/Hacathan_5 status)",
+      "Bash(npm run build:*)",
+      "Bash(npx:*)",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)"
     ]
   }
 }
