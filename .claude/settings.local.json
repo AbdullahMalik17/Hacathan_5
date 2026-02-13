@@ -19,7 +19,8 @@
       "Bash(cd:*)",
       "Bash(ls:*)",
       "Bash(mkdir:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(gh auth:*)"
     ]
   }
 }
