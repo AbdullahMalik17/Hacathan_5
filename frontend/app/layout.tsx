@@ -42,7 +42,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <body className="min-h-screen bg-background font-sans antialiased mesh-gradient relative overflow-x-hidden">
+        {/* Decorative Aura Blobs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+          <div className="aura-glow top-[-10%] left-[-10%] bg-primary" />
+          <div className="aura-glow bottom-[-10%] right-[-10%] bg-accent animation-delay-2000" />
+          <div className="aura-glow top-[40%] right-[20%] bg-primary/40 animation-delay-5000" />
+        </div>
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

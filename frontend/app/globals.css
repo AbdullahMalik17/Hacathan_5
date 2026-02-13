@@ -467,6 +467,67 @@
     animation: shimmer 2.5s infinite;
   }
 
+  /* Mesh Gradient Background */
+  .mesh-gradient {
+    background-color: hsl(var(--background));
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(var(--primary) / 0.15) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(var(--accent) / 0.15) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(var(--primary) / 0.15) 0, transparent 50%),
+      radial-gradient(at 50% 50%, hsla(var(--accent) / 0.1) 0, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(var(--primary) / 0.15) 0, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(var(--accent) / 0.15) 0, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Aura Glow Effect */
+  .aura-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    z-index: -1;
+    pointer-events: none;
+    animation: aura-move 20s infinite alternate ease-in-out;
+  }
+
+  @keyframes aura-move {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(10%, 10%) scale(1.1); }
+    66% { transform: translate(-5%, 15%) scale(0.9); }
+    100% { transform: translate(5%, -5%) scale(1); }
+  }
+
+  /* Animated Border Gradient */
+  .animated-border {
+    position: relative;
+    border: 1px solid transparent;
+    background: linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+                linear-gradient(90deg, 
+                  hsl(var(--primary)), 
+                  hsl(var(--accent)), 
+                  hsl(var(--primary))
+                ) border-box;
+    background-size: 200% 100%;
+    animation: border-rotate 4s linear infinite;
+  }
+
+  @keyframes border-rotate {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+  }
+
+  /* Modern Glass Effect */
+  .glass-morphism {
+    @apply backdrop-blur-md bg-white/5 border border-white/10 shadow-2xl;
+  }
+
+  .dark .glass-morphism {
+    @apply bg-black/20 border-white/5;
+  }
+
   /* Message bubbles for chat */
   .message-bubble {
     @apply relative;

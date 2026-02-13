@@ -122,11 +122,13 @@ export function StaggerContainer({
 interface StaggerItemProps extends HTMLMotionProps<"div"> {
   children: ReactNode
   direction?: "up" | "down" | "left" | "right" | "none"
+  delay?: number
 }
 
 export function StaggerItem({
   children,
   direction = "up",
+  delay = 0,
   ...props
 }: StaggerItemProps) {
   const directions = {
@@ -147,6 +149,7 @@ export function StaggerItem({
           y: 0,
           transition: {
             duration: 0.5,
+            delay,
             ease: [0.21, 0.47, 0.32, 0.98],
           },
         },

@@ -18,7 +18,8 @@
       "Bash(npx:*)",
       "Bash(cd:*)",
       "Bash(ls:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)"
     ]
   }
 }

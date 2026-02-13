@@ -170,26 +170,26 @@ export function TicketStatus({ ticket }: TicketStatusProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="space-y-6 pb-12"
     >
       {/* Header Card */}
-      <Card className="overflow-hidden">
-        <CardHeader className="border-b bg-muted/30">
+      <Card className="overflow-hidden border-none shadow-2xl glass-morphism ring-1 ring-white/20">
+        <CardHeader className="border-b border-white/10 bg-white/5">
           <div className="flex items-start justify-between">
             <div>
-              <CardDescription className="flex items-center gap-2">
-                <Sparkles className="h-3 w-3 text-primary" />
-                Ticket ID
+              <CardDescription className="flex items-center gap-2 text-primary font-medium">
+                <Sparkles className="h-3 w-3" />
+                Support Ticket
               </CardDescription>
-              <div className="mt-1 flex items-center gap-2">
-                <code className="font-mono text-lg font-semibold gradient-text">
-                  {ticket.ticket_id.slice(0, 8)}...
+              <div className="mt-1 flex items-center gap-3">
+                <code className="font-mono text-2xl font-bold gradient-text tracking-tighter">
+                  #{ticket.ticket_id.slice(0, 8)}
                 </code>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={copyTicketId}
-                  className="h-8 w-8 hover:text-primary"
+                  className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
                   aria-label="Copy full ticket ID"
                 >
                   <Copy className="h-4 w-4" />
@@ -202,59 +202,69 @@ export function TicketStatus({ ticket }: TicketStatusProps) {
                 size="sm"
                 onClick={refreshStatus}
                 disabled={isRefreshing}
-                className="rounded-full"
+                className="rounded-full bg-white/5 border-white/10 backdrop-blur-sm"
               >
                 <RefreshCw
                   className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")}
                 />
-                Refresh
+                Sync Status
               </Button>
             </motion.div>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="pt-8">
           {/* Status Banner */}
-          <div className={cn("rounded-2xl p-5 border", colors.bg, colors.border)}>
-            <div className="flex items-center gap-4">
-              <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl", colors.icon)}>
-                <StatusIcon className={cn("h-6 w-6", colors.iconText)} />
+          <div className={cn("rounded-3xl p-6 border shadow-inner relative overflow-hidden", colors.bg, colors.border)}>
+            <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-white/10 rounded-full blur-2xl" />
+            <div className="relative z-10 flex items-center gap-6">
+              <div className={cn("flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg", colors.icon)}>
+                <StatusIcon className={cn("h-8 w-8", colors.iconText)} />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge variant={status.variant}>{status.label}</Badge>
-                  <Badge variant={priorityConfig[ticket.priority].variant}>
+                <div className="flex items-center gap-3 mb-2">
+                  <Badge variant={status.variant} className="px-3 py-1 rounded-full uppercase tracking-wider text-[10px] font-bold">
+                    {status.label}
+                  </Badge>
+                  <Badge variant={priorityConfig[ticket.priority].variant} className="px-3 py-1 rounded-full uppercase tracking-wider text-[10px] font-bold">
                     {priorityConfig[ticket.priority].label} Priority
                   </Badge>
                 </div>
-                <p className={cn("text-sm", colors.text)}>
+                <h3 className={cn("text-lg font-bold", colors.iconText)}>
                   {status.description}
-                </p>
+                </h3>
               </div>
             </div>
 
             {/* Progress bar */}
-            <div className="mt-4">
-              <div className="flex justify-between text-xs text-muted-foreground mb-2">
-                <span>Progress</span>
-                <span>{status.progress}%</span>
+            <div className="mt-6 relative z-10">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+                <span>Resolution Progress</span>
+                <span className={colors.iconText}>{status.progress}%</span>
               </div>
-              <Progress value={status.progress} className="h-2" />
+              <div className="h-3 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${status.progress}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className={cn("h-full rounded-full shadow-lg", colors.icon)}
+                />
+              </div>
             </div>
           </div>
 
           {/* Ticket Details */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {[
-              { label: "Created", value: formatDate(ticket.created_at) },
-              { label: "Category", value: ticket.category, capitalize: true },
-              { label: "Channel", value: ticket.source_channel, capitalize: true },
-              ...(ticket.resolved_at
-                ? [{ label: "Resolved", value: formatDate(ticket.resolved_at) }]
-                : []),
+              { label: "Created", value: formatDate(ticket.created_at), icon: Clock },
+              { label: "Category", value: ticket.category, icon: Sparkles, capitalize: true },
+              { label: "Source", value: ticket.source_channel, icon: MessageSquare, capitalize: true },
             ].map((item) => (
-              <div key={item.label} className="rounded-xl bg-muted/50 p-3">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{item.label}</p>
-                <p className={cn("font-semibold mt-0.5", item.capitalize && "capitalize")}>{item.value}</p>
+              <div key={item.label} className="rounded-2xl bg-white/5 dark:bg-black/20 border border-white/5 p-4 transition-all hover:bg-white/10">
+                <div className="flex items-center gap-2 mb-2">
+                  <item.icon className="h-3 w-3 text-primary" />
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{item.label}</p>
+                </div>
+                <p className={cn("font-semibold text-sm", item.capitalize && "capitalize")}>{item.value}</p>
               </div>
             ))}
           </div>
@@ -262,74 +272,64 @@ export function TicketStatus({ ticket }: TicketStatusProps) {
       </Card>
 
       {/* Conversation History */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10">
+      <Card className="border-none shadow-2xl glass-morphism ring-1 ring-white/20">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10">
               <MessageSquare className="h-5 w-5 text-primary" />
             </div>
-            Conversation History
+            Activity Logs
           </CardTitle>
-          <CardDescription>
-            {ticket.messages?.length || 0} messages in this conversation
+          <CardDescription className="ml-12 font-medium">
+            {ticket.messages?.length || 0} secure messages stored
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {ticket.messages && ticket.messages.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-6 relative">
+              {/* Vertical timeline line */}
+              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted/30 -z-0" />
+              
               {ticket.messages.map((message, index) => (
                 <motion.div
                   key={message.id || index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={cn(
-                    "flex gap-3",
-                    message.role === "customer" ? "flex-row" : "flex-row-reverse"
-                  )}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex gap-4 relative z-10"
                 >
                   <Avatar className={cn(
-                    "h-8 w-8",
-                    message.role !== "customer" && "ring-2 ring-primary/20"
+                    "h-8 w-8 ring-4 ring-background",
+                    message.role !== "customer" && "ring-primary/10"
                   )}>
                     <AvatarFallback className={cn(
+                      "text-[10px] font-bold",
                       message.role === "customer"
                         ? "bg-muted"
-                        : message.role === "agent"
-                          ? "bg-gradient-to-br from-primary to-accent text-white"
-                          : "bg-muted"
+                        : "bg-gradient-to-br from-primary to-accent text-white"
                     )}>
-                      {message.role === "customer" ? (
-                        <User className="h-4 w-4" />
-                      ) : message.role === "agent" ? (
-                        <Bot className="h-4 w-4" />
-                      ) : (
-                        <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                      )}
+                      {message.role === "customer" ? "YOU" : "AI"}
                     </AvatarFallback>
                   </Avatar>
-                  <div
-                    className={cn(
-                      "max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm",
-                      message.role === "customer"
-                        ? "message-bubble-user"
-                        : message.role === "agent"
-                          ? "bg-muted rounded-tr-sm"
-                          : "bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-tr-sm"
-                    )}
-                  >
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                    <p
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        {message.role === "customer" ? "Your Request" : "AI Response"}
+                      </span>
+                      <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                        {formatRelativeTime(message.created_at)}
+                      </span>
+                    </div>
+                    <div
                       className={cn(
-                        "mt-1 text-[10px]",
+                        "rounded-2xl px-5 py-4 shadow-sm border transition-all duration-300",
                         message.role === "customer"
-                          ? "text-white/70"
-                          : "text-muted-foreground"
+                          ? "bg-white/5 border-white/10"
+                          : "bg-gradient-to-br from-primary/5 to-accent/5 border-primary/10"
                       )}
                     >
-                      {formatRelativeTime(message.created_at)}
-                      {message.channel && ` via ${message.channel}`}
-                    </p>
+                      <p className="text-sm leading-relaxed tracking-wide">{message.content}</p>
+                    </div>
                   </div>
                 </motion.div>
               ))}

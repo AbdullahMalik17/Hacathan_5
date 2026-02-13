@@ -54,14 +54,29 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
       id: "welcome",
       role: "assistant",
       content:
-        "Hello! I'm your AI support assistant. How can I help you today? You can ask me anything about our products or services.",
+        "Hello! I'm your AI Concierge. I can help with account issues, orders, or general questions.",
       timestamp: new Date(),
     },
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingText, setLoadingText] = useState("Thinking...")
   const [isMinimized, setIsMinimized] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(true)
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isLoading) {
+      const texts = ["Analyzing request...", "Searching knowledge base...", "Drafting response...", "Thinking..."]
+      let i = 0
+      interval = setInterval(() => {
+        setLoadingText(texts[i % texts.length])
+        i++
+      }, 800)
+    }
+    return () => clearInterval(interval)
+  }, [isLoading])
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -228,8 +243,8 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
   }
 
   const containerClasses = fullPage
-    ? "flex flex-col h-[calc(100vh-12rem)] max-w-4xl mx-auto"
-    : "fixed bottom-6 right-6 w-[420px] h-[650px] flex flex-col rounded-2xl border bg-card shadow-2xl z-50 overflow-hidden"
+    ? "flex flex-col h-[calc(100vh-12rem)] max-w-4xl mx-auto glass-morphism rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/20"
+    : "fixed bottom-6 right-6 w-[420px] h-[650px] flex flex-col rounded-3xl border-none glass-morphism shadow-2xl z-50 overflow-hidden ring-1 ring-white/20"
 
   return (
     <motion.div
@@ -238,31 +253,21 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
       className={containerClasses}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b bg-gradient-to-r from-primary to-accent px-4 py-3 text-white">
+      <div className="flex items-center justify-between bg-gradient-to-r from-primary/90 to-accent/90 backdrop-blur-md px-6 py-4 text-white shadow-lg">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Avatar className="h-10 w-10 border-2 border-white/30">
+            <Avatar className="h-12 w-12 border-2 border-white/50 shadow-inner">
               <AvatarImage src="/ai-avatar.png" />
               <AvatarFallback className="bg-white/20 text-white">
-                <Sparkles className="h-5 w-5" />
+                <Sparkles className="h-6 w-6" />
               </AvatarFallback>
             </Avatar>
-            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white" />
+            <span className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
           </div>
           <div>
-            <p className="font-semibold">AI Support Assistant</p>
-            <p className="text-xs text-white/80 flex items-center gap-1">
-              {isLoading ? (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-                  Typing...
-                </>
-              ) : (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  Online
-                </>
-              )}
+            <p className="font-bold tracking-tight">AI Concierge</p>
+            <p className="text-[10px] font-medium text-white/80 uppercase tracking-widest flex items-center gap-1.5">
+              {isLoading ? loadingText : "Ready to help"}
             </p>
           </div>
         </div>
@@ -330,13 +335,13 @@ export function ChatWidget({ fullPage = false }: ChatWidgetProps) {
               )}>
                 <div
                   className={cn(
-                    "rounded-2xl px-4 py-2.5 shadow-sm",
+                    "rounded-2xl px-4 py-3 shadow-md transition-all duration-300",
                     message.role === "user"
                       ? "message-bubble-user"
-                      : "bg-muted rounded-tl-sm"
+                      : "bg-white/50 dark:bg-black/40 backdrop-blur-sm border border-white/20 rounded-tl-sm hover:bg-white/60 dark:hover:bg-black/50"
                   )}
                 >
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed tracking-wide">{message.content}</p>
                 </div>
                 <div className={cn(
                   "flex items-center gap-2 mt-1.5 px-1",

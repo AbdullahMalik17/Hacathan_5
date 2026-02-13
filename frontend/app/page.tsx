@@ -119,9 +119,9 @@ export default function LandingPage() {
         </div>
 
         <div className="container relative z-10">
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+          <StaggerContainer className="flex flex-col items-center text-center max-w-4xl mx-auto">
             {/* Status Badge */}
-            <FadeIn delay={0} direction="down">
+            <StaggerItem delay={0} direction="down">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm font-medium mb-8 shadow-lg">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
@@ -130,27 +130,27 @@ export default function LandingPage() {
                 <span className="gradient-text font-semibold">Next-Gen Support System</span>
                 <Sparkles className="h-4 w-4 text-primary" />
               </div>
-            </FadeIn>
+            </StaggerItem>
 
             {/* Main Heading */}
-            <FadeIn delay={0.1} direction="up">
+            <StaggerItem delay={0.1}>
               <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
                 Customer Support
               </h1>
-            </FadeIn>
+            </StaggerItem>
 
             {/* Subtitle */}
-            <FadeIn delay={0.2} direction="up">
+            <StaggerItem delay={0.2}>
               <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl leading-relaxed">
                 Experience the perfect blend of{" "}
                 <span className="text-primary font-semibold">AI speed</span> and{" "}
                 <span className="text-accent font-semibold">human empathy</span>.
                 Get instant answers, 24/7 availability, and seamless resolution.
               </p>
-            </FadeIn>
+            </StaggerItem>
 
             {/* CTA Buttons */}
-            <FadeIn delay={0.3} direction="up">
+            <StaggerItem delay={0.3}>
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
                 <Link href="/chat">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
@@ -170,41 +170,37 @@ export default function LandingPage() {
                   </motion.div>
                 </Link>
               </div>
-            </FadeIn>
+            </StaggerItem>
 
             {/* Stats Row */}
-            <FadeIn delay={0.4} direction="up" className="w-full">
-              <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {stats.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
-                  >
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="stats-card group cursor-pointer hover:border-primary/30 transition-all duration-300 hover:-translate-y-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20 transition-colors">
-                              <stat.icon className="h-5 w-5 text-primary" />
-                            </div>
+            <div className="w-full mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {stats.map((stat, index) => (
+                <StaggerItem
+                  key={stat.label}
+                  delay={0.4 + index * 0.1}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="stats-card group cursor-pointer hover:border-primary/30 transition-all duration-300 hover:-translate-y-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20 transition-colors">
+                            <stat.icon className="h-5 w-5 text-primary" />
                           </div>
-                          <p className="text-2xl md:text-3xl font-bold font-display gradient-text">{stat.value}</p>
-                          <p className="text-sm text-muted-foreground">{stat.label}</p>
                         </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Industry-leading {stat.label.toLowerCase()}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </motion.div>
-                ))}
-              </div>
-            </FadeIn>
+                        <p className="text-2xl md:text-3xl font-bold font-display gradient-text">{stat.value}</p>
+                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Industry-leading {stat.label.toLowerCase()}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </StaggerItem>
+              ))}
+            </div>
 
             {/* Floating UI Mockup */}
-            <FadeIn delay={0.6} direction="up" className="w-full">
+            <StaggerItem delay={0.8} className="w-full">
               <div className="relative mt-20 w-full max-w-4xl mx-auto">
                 <ScaleOnHover scale={1.02}>
                   <div className="relative rounded-2xl border border-white/20 glass-card shadow-2xl p-2 md:p-4">
@@ -319,8 +315,8 @@ export default function LandingPage() {
                 <div className="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-3xl" />
                 <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-gradient-to-br from-accent/30 to-primary/30 rounded-full blur-3xl" />
               </div>
-            </FadeIn>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
 
@@ -339,9 +335,9 @@ export default function LandingPage() {
             </p>
           </FadeInView>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {features.map((feature, index) => (
-              <FadeInView key={feature.title} delay={feature.delay} direction="up">
+              <StaggerItem key={feature.title} delay={feature.delay}>
                 <Card className="feature-card group h-full bg-card/50 backdrop-blur-sm">
                   <CardContent className="pt-6">
                     <div className={`mb-6 w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-xl`}>
@@ -355,9 +351,9 @@ export default function LandingPage() {
                     </p>
                   </CardContent>
                 </Card>
-              </FadeInView>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
