@@ -1,341 +1,251 @@
 # Customer Success Digital FTE 🤖
 
-AI-powered customer support agent that handles inquiries 24/7 across Email, WhatsApp, and Web Form channels.
+> **An AI-powered customer support platform that works 24/7 across Email, WhatsApp, and Web chat/form — with smart escalation to humans when needed.**
 
-## Project Status
-
-### ✅ ALL PHASES COMPLETE! 🎉
-
-| Phase | Description | Status | Tasks |
-|-------|-------------|--------|-------|
-| **Phase 1** | Project Setup | ✅ Complete | 9/9 |
-| **Phase 2** | Foundational Infrastructure | ✅ Complete | 13/13 |
-| **Phase 3** | Email Support (P1 MVP) | ✅ Complete | 21/21 |
-| **Phase 4** | WhatsApp Support (P1 MVP) | ✅ Complete | 14/14 |
-| **Phase 5** | Web Form Support (P2) | ✅ Complete | 15/15 |
-| **Phase 6** | Cross-Channel Continuity (P2) | ✅ Complete | 8/8 |
-| **Phase 7** | Escalation Handling (P3) | ✅ Complete | 11/11 |
-| **Phase 8** | Deployment Infrastructure | ✅ Complete | 12/12 |
-| **Phase 9** | Polish & Production Readiness | ✅ Complete | 14/14 |
-
-**Total Progress: 117/117 tasks (100%)**
-
-**All 5 User Stories Implemented:**
-1. ✅ Email Support Inquiry (P1 MVP)
-2. ✅ WhatsApp Quick Question (P1 MVP)
-3. ✅ Web Form Submission (P2)
-4. ✅ Cross-Channel Continuity (P2)
-5. ✅ Escalation to Human Support (P3)
+[![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)](#tech-stack)
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js-000000)](#tech-stack)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL%20%2B%20pgvector-336791)](#tech-stack)
+[![Queue](https://img.shields.io/badge/Streaming-Apache%20Kafka-E10098)](#tech-stack)
 
 ---
 
-## 🚀 Quick Start
+## 🌟 What is this project?
+
+Customer Success Digital FTE is a production-style **AI customer support system** designed to help teams scale support quality without scaling headcount at the same pace.
+
+It combines:
+- **Multi-channel intake** (Gmail, Twilio WhatsApp, Web form)
+- **AI-driven resolution** (OpenAI agent + knowledge base search)
+- **Operational reliability** (Kafka queueing, retries, deduplication)
+- **Human-in-the-loop safety** (automatic escalation rules)
+- **Modern UX** (Next.js frontend for support interactions and ticket tracking)
+
+If your goal is to build a modern support operation that feels fast, consistent, and always-on, this project is a strong reference implementation.
+
+---
+
+## 🚀 Why this project can become popular
+
+This repository is not just a demo chatbot. It models how real teams ship AI support in production:
+
+- ✅ **Clear business value:** faster response times + reduced support load
+- ✅ **Real channel integrations:** email, WhatsApp, and web intake
+- ✅ **Strong architecture:** event-driven processing with Kafka
+- ✅ **Enterprise-friendly foundations:** observability, readiness checks, structured logs
+- ✅ **Extensible design:** documented specs, deployment guides, and modular services
+
+---
+
+## ✨ Core capabilities
+
+### 1) Omnichannel customer intake
+- Gmail Pub/Sub webhook handling
+- Twilio WhatsApp webhook handling
+- Web support form submission API
+
+### 2) AI support agent
+- Uses OpenAI-based agent logic to:
+  - search knowledge base (vector search)
+  - create/update ticket workflows
+  - generate channel-appropriate responses
+  - decide when escalation is required
+
+### 3) Knowledge base + semantic retrieval
+- PostgreSQL + `pgvector`
+- Embedding-based search for relevant support articles and context
+
+### 4) Ticketing and continuity
+- Ticket creation and tracking
+- Cross-channel customer identity continuity
+- Conversation and message history support
+
+### 5) Reliability and operations
+- Kafka-backed async processing
+- Retry and dead-letter patterns
+- Correlation IDs + structured logging
+- Health/readiness/metrics endpoints
+
+### 6) Frontend experience
+- Marketing/landing page
+- Chat interface (`/chat`)
+- Support portal (`/support`)
+- Ticket lookup page (`/ticket/[id]`)
+
+---
+
+## 🏗️ High-level architecture
+
+```text
+Customer (Email / WhatsApp / Web)
+          │
+          ▼
+  FastAPI Webhooks & API
+          │
+          ▼
+      Kafka Topics
+          │
+          ▼
+    Worker Processor
+          │
+          ▼
+   AI Agent + Tooling
+          │
+    ┌─────┴───────────────┐
+    ▼                     ▼
+PostgreSQL/pgvector    Channel Clients
+(tickets, KB, users)   (Gmail, Twilio)
+```
+
+---
+
+## 🧰 Tech stack
+
+- **Backend:** FastAPI, Pydantic, AsyncPG
+- **AI:** OpenAI agent pattern + embeddings
+- **Queue/Streaming:** Apache Kafka
+- **Data:** PostgreSQL + pgvector
+- **Frontend:** Next.js (App Router), React, TailwindCSS
+- **Infra:** Docker Compose, Kubernetes manifests, Fly.io/Azure deployment support
+- **Observability:** Prometheus + Grafana configs, JSON structured logs
+
+---
+
+## ⚡ Quick start (local)
 
 ### Prerequisites
+- Docker Desktop (or Docker Engine)
+- Python 3.10+
+- Node.js 18+
+- OpenAI API key
 
-1. **Docker Desktop** - Running and healthy
-2. **Python 3.10+** - With virtual environment
-3. **OpenAI API Key** - For agent and embeddings
-
-### One-Command Deployment
+### 1) Configure backend environment
 
 ```bash
-# 1. Start Docker Desktop (GUI)
-
-# 2. Set your OpenAI API key
 echo 'OPENAI_API_KEY=sk-proj-your-key-here' >> backend/.env
+```
 
-# 3. Run deployment script
+### 2) Start infrastructure and backend dependencies
+
+```bash
 ./scripts/deploy.sh
+```
 
-# 4. Start services (in separate terminals)
-python -m backend.src.main                    # FastAPI server
-python backend/src/workers/message_processor.py  # Kafka consumer
+### 3) Run backend API
 
-# 5. Check status
+```bash
+python -m backend.src.main
+```
+
+### 4) Run background worker
+
+```bash
+python backend/src/workers/message_processor.py
+```
+
+### 5) Run frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 6) Verify service health
+
+```bash
 ./scripts/check_status.sh
+curl http://localhost:8000/health
+curl http://localhost:8000/ready
 ```
 
 ---
 
-## 📁 Project Structure
+## 🔌 Main API endpoints
 
-```
-customer-success-fte/
-├── backend/src/
-│   ├── agent/                 # AI Agent (OpenAI Agents SDK)
-│   │   ├── customer_success_agent.py  # Main agent
-│   │   ├── tools.py           # 5 function tools
-│   │   ├── prompts.py         # System prompts
-│   │   └── formatters.py      # Channel-specific formatting
-│   ├── webhooks/              # Webhook handlers
-│   │   └── gmail.py           # Gmail Pub/Sub handler
-│   ├── services/
-│   │   ├── database.py        # AsyncPG connection pool
-│   │   ├── kafka_producer.py  # Kafka producer
-│   │   ├── auth.py            # Webhook validation
-│   │   └── channels/
-│   │       └── gmail_client.py  # Gmail API client
-│   ├── workers/
-│   │   └── message_processor.py  # Kafka consumer
-│   ├── models/                # Pydantic models
-│   ├── middleware/            # Correlation ID, logging
-│   ├── utils/                 # Sanitization utilities
-│   ├── config.py              # Configuration management
-│   └── main.py                # FastAPI application
-├── database/
-│   ├── schema.sql             # PostgreSQL schema + pgvector
-│   └── migrations/
-├── infrastructure/
-│   ├── docker-compose.yml     # Local dev environment
-│   └── kubernetes/            # K8s manifests (Phase 8)
-├── scripts/
-│   ├── seed_knowledge_base.py  # Seed KB with embeddings
-│   └── setup_kafka_topics.sh   # Create Kafka topics
-├── scripts/deploy.sh          # Deployment script
-├── scripts/check_status.sh    # Status checker
-├── docs/                      # Project documentation
-│   ├── DEPLOYMENT_GUIDE.md    # Full deployment guide
-│   ├── TESTING.md             # Testing guide
-│   └── ...                    # Other guides
-```
+- `GET /` → service metadata
+- `GET /health` → liveness
+- `GET /ready` → readiness (DB + Kafka)
+- `GET /metrics` → Prometheus metrics
+- `POST /webhooks/gmail/pubsub` → Gmail inbound notifications
+- `POST /webhooks/twilio/whatsapp` → WhatsApp inbound messages
+- `POST /api/support/submit` → Web form ticket creation
+- `GET /api/ticket/{ticket_id}` → Ticket tracking
 
 ---
 
-## 🎯 Features Implemented
+## 📁 Project structure
 
-### Phase 3: Email Support Channel
+```text
+backend/src/
+├── agent/            # AI tools, prompts, response formatters
+├── services/         # DB, Kafka, auth, channel clients
+├── webhooks/         # Gmail, Twilio, web form handlers
+├── workers/          # Kafka consumer/processor
+├── monitoring/       # Metrics + monitoring config
+├── middleware/       # Correlation IDs, logging, metrics
+└── main.py           # FastAPI app entrypoint
 
-- ✅ **Gmail Integration**
-  - Pub/Sub webhook with JWT validation
-  - Gmail API for sending formatted responses
-  - Email threading for conversation continuity
+frontend/
+├── app/              # Next.js routes (/, /chat, /support, /ticket/[id])
+└── components/       # UI and motion components
 
-- ✅ **AI Agent (OpenAI Agents SDK)**
-  - Autonomous customer support agent
-  - 5 function tools: `create_ticket`, `get_customer_history`, `search_knowledge_base`, `send_email_response`, `escalate_ticket`
-  - Comprehensive system prompts with sentiment analysis
-  - Escalation detection (pricing, refund, legal, sentiment, human request)
+database/
+├── schema.sql
+└── migrations/
 
-- ✅ **Knowledge Base Search**
-  - Semantic search with pgvector (1536-dim embeddings)
-  - OpenAI text-embedding-3-small model
-  - Similarity threshold: 0.6
-  - HNSW index for fast retrieval
-
-- ✅ **Message Processing**
-  - Kafka consumer with exponential backoff retry
-  - Message deduplication (FR-004)
-  - Cross-channel customer identity
-  - Graceful error handling + DLQ
-
-- ✅ **Database Layer**
-  - PostgreSQL with pgvector extension
-  - 7 entities: customers, customer_identifiers, conversations, tickets, messages, knowledge_base, processed_messages
-  - AsyncPG connection pool (min=10, max=20)
-
-- ✅ **Middleware & Security**
-  - Correlation ID tracking (distributed tracing)
-  - Structured JSON logging
-  - Input sanitization (XSS, SQL injection prevention)
-  - Webhook signature validation
-
----
-
-## 🔧 Architecture
-
-```
-┌──────────────┐
-│   Customer   │
-│  sends email │
-└──────┬───────┘
-       │
-       ▼
-┌─────────────────────┐
-│  Gmail + Pub/Sub    │  ← Webhook notification
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│  FastAPI Webhook    │  ← JWT validation
-│  /webhooks/gmail    │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│   Kafka Topic       │  ← fte.tickets.incoming
-│  (Message Queue)    │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│  Kafka Consumer     │  ← Retry logic + DLQ
-│  (Worker Process)   │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│   AI Agent          │  ← OpenAI Agents SDK
-│  - Search KB        │
-│  - Create ticket    │
-│  - Analyze sentiment│
-│  - Generate response│
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│  Gmail API          │  ← Send formatted email
-│  (Send Response)    │
-└─────────────────────┘
-          │
-          ▼
-     Customer receives
-     professional response
+infrastructure/
+├── docker-compose.yml
+├── kubernetes/
+└── monitoring/
 ```
 
 ---
 
 ## 🧪 Testing
 
-### Manual Testing
-
-1. **Check Infrastructure**
-   ```bash
-   ./scripts/check_status.sh
-   ```
-
-2. **Test Health Endpoints**
-   ```bash
-   curl http://localhost:8000/health
-   curl http://localhost:8000/ready
-   ```
-
-3. **Publish Test Message**
-   ```bash
-   # See docs/TESTING.md for full test script
-   python -c "
-   import asyncio
-   from backend.src.services.kafka_producer import kafka_producer
-   asyncio.run(kafka_producer.publish('fte.tickets.incoming', {
-       'channel': 'email',
-       'customer_identifier': 'test@example.com',
-       'content': 'How do I reset my password?',
-       'channel_message_id': 'test-123',
-       'timestamp': '2026-01-31T12:00:00Z',
-       'metadata': {'subject': 'Help'}
-   }))
-   "
-   ```
-
-4. **Verify Processing**
-   ```bash
-   # Check database
-   docker exec -it customer-success-postgres psql -U postgres -d customer_success \
-     -c "SELECT COUNT(*) FROM tickets;"
-   ```
-
-### End-to-End Testing
-
-See [docs/TESTING.md](docs/TESTING.md) for comprehensive testing guide.
-
----
-
-## 📊 Database Schema
-
-```sql
-customers (id, name, email, phone, sentiment_score, ...)
-├── customer_identifiers (email, phone, whatsapp)
-└── conversations (active/closed)
-    ├── tickets (open/in_progress/resolved/escalated)
-    └── messages (inbound/outbound)
-
-knowledge_base (id, title, content, embedding[1536], ...)
-```
-
----
-
-## 🔑 Environment Variables
-
-Edit `backend/.env`:
-
 ```bash
-# Database
-DATABASE_URL=postgresql+asyncpg://postgres:password@localhost:5432/customer_success
+# Backend test suite
+python -m pytest backend/tests
 
-# Kafka
-KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-KAFKA_CONSUMER_GROUP=agent-workers
-
-# OpenAI
-OPENAI_API_KEY=sk-proj-your-key-here  # ⚠️ REQUIRED
-OPENAI_MODEL=gpt-4-turbo-preview
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-
-# Gmail (for production)
-GMAIL_SERVICE_ACCOUNT_PATH=./credentials/gmail-service-account.json
-GMAIL_SUPPORT_EMAIL=support@company.com
-
-# Twilio (Phase 4)
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your-auth-token
-TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+# Optional helper script
+./scripts/run_tests.sh
 ```
+
+See `docs/TESTING.md` for detailed testing workflows.
 
 ---
 
-## 📚 Documentation
+## 📚 Documentation index
 
-### Deployment Guides
-- [docs/API_KEYS_GUIDE.md](docs/API_KEYS_GUIDE.md) - **START HERE:** How to obtain all required API keys
-- [docs/DEPLOY_LOCAL.md](docs/DEPLOY_LOCAL.md) - Local Kubernetes deployment with Minikube
-- [docs/DEPLOY_CLOUD.md](docs/DEPLOY_CLOUD.md) - Production deployment to GKE/EKS/AKS/DigitalOcean
-- [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) - Original deployment instructions
-- [docs/azure-deployment-guide.md](docs/azure-deployment-guide.md) - Azure deployment guide
-
-### Testing & Development
-- [docs/TESTING.md](docs/TESTING.md) - Comprehensive testing guide
-- [CLAUDE.md](CLAUDE.md) - Project development guidelines
-- [specs/001-customer-success-fte/](specs/001-customer-success-fte/) - Feature specifications
+- `docs/API_KEYS_GUIDE.md` – how to obtain required API keys
+- `docs/DEPLOY_LOCAL.md` – local Kubernetes deployment
+- `docs/DEPLOY_CLOUD.md` – cloud deployment guidance
+- `docs/DEPLOY_FLY.md` – Fly.io deployment path
+- `docs/azure-deployment-guide.md` – Azure deployment guide
+- `specs/001-customer-success-fte/` – full spec-driven implementation docs
 
 ---
 
-## 🎯 Next Steps
+## 🗺️ Roadmap ideas (to grow adoption)
 
-### Option 1: Local Deployment (Recommended for Testing) ⭐
-1. **Get API keys**: Follow [docs/API_KEYS_GUIDE.md](docs/API_KEYS_GUIDE.md) (OpenAI required)
-2. **Deploy locally**: Follow [docs/DEPLOY_LOCAL.md](docs/DEPLOY_LOCAL.md)
-3. **Cost**: $0-5/month (OpenAI usage only)
-
-### Option 2: Production Deployment
-1. **Get all API keys**: [docs/API_KEYS_GUIDE.md](docs/API_KEYS_GUIDE.md)
-2. **Choose platform**: DigitalOcean (recommended), GKE, EKS, or AKS
-3. **Deploy**: Follow [docs/DEPLOY_CLOUD.md](docs/DEPLOY_CLOUD.md)
-4. **Configure webhooks**: Twilio WhatsApp + Gmail Pub/Sub
-5. **Set up monitoring**: Prometheus + Grafana
-6. **Cost**: ~$70-120/month (cloud + API usage)
-
-### Option 3: Quick Docker Compose (Fastest)
-```bash
-# Get OpenAI API key first
-echo 'OPENAI_API_KEY=sk-proj-your-key' >> backend/.env
-
-# Run deployment script
-./scripts/deploy.sh
-
-# Start services
-python -m backend.src.main
-python backend/src/workers/message_processor.py
-```
+To make this project even more popular, consider adding:
+- Public demo environment with seeded sample tickets
+- Video walkthrough + architecture diagram in docs
+- Benchmarks (response time, resolution rate, cost per ticket)
+- OAuth + role-based dashboard for support teams
+- Native integrations (Zendesk, Intercom, HubSpot, Slack)
+- Automated evaluation suite for answer quality and hallucination checks
 
 ---
 
 ## 🤝 Contributing
 
-This project follows Spec-Driven Development (SDD) methodology:
-1. All features start with specifications in `specs/`
-2. Tasks are tracked in `specs/*/tasks.md`
-3. ADRs document architectural decisions in `history/adr/`
-4. PHRs record development history in `history/prompts/`
+Contributions are welcome.
+
+1. Fork the repo
+2. Create a feature branch
+3. Add/modify tests
+4. Open a PR with clear context and screenshots (if UI changes)
 
 ---
 
@@ -345,19 +255,6 @@ Copyright © 2026. All rights reserved.
 
 ---
 
-## 🆘 Support
+## 💬 One-line pitch you can use publicly
 
-- **Issues**: Check docs/DEPLOYMENT_GUIDE.md troubleshooting section
-- **Status**: Run `./scripts/check_status.sh`
-- **Logs**: `docker-compose -f infrastructure/docker-compose.yml logs -f`
-
----
-
-**Built with:**
-- FastAPI
-- OpenAI Agents SDK
-- PostgreSQL + pgvector
-- Apache Kafka
-- Docker
-
-**AI Agent powered by**: OpenAI GPT-4 Turbo
+**Customer Success Digital FTE is an open-source, production-style AI support platform that resolves customer issues across email, WhatsApp, and web — instantly, reliably, and with human escalation built in.**
